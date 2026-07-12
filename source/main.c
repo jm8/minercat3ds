@@ -3,6 +3,10 @@
 #include <stdio.h>
 #include <tex3ds.h>
 #include <string.h>
+#include "3ds/allocator/linear.h"
+#include "3ds/console.h"
+#include "3ds/gfx.h"
+#include "3ds/services/hid.h"
 #include "vshader_shbin.h"
 #include "texture_t3x.h"
 
@@ -98,6 +102,19 @@ static void add_face(int face, int x, int y, int block) {
     vertex_count += 6;
 }
 
+typedef struct {
+    float x, y, z;
+    float yaw;
+    float pitch;
+} Camera;
+
+Camera camera = {0.0f, 2.0f, 5.0f, 0.0f, 0.0f};
+
+#define WORLD_SIZE 24
+#define CHUNK_HEIGHT 16
+#define NUM_CHUKS 516
+char *world;
+
 static DVLB_s *vshader_dvlb;
 static shaderProgram_s program;
 static int uLoc_projection, uLoc_modelView;
@@ -149,6 +166,9 @@ static void sceneInit(void) {
     // Compute the projection matrix
     Mtx_PerspTilt(&projection, C3D_AngleFromDegrees(80.0f), C3D_AspectRatioTop, 0.01f, 1000.0f, false);
 
+    world = linearAlloc(WORLD_SIZE * WORLD_SIZE * NUM_CHUKS * CHUNK_HEIGHT);
+    memset(world, 1, WORLD_SIZE * WORLD_SIZE * NUM_CHUKS * CHUNK_HEIGHT);
+
     // Create the VBO (vertex buffer object)
     vertex_list  = linearAlloc(MAX_VERTEX_COUNT * sizeof(vertex));
     vertex_count = 36;
@@ -181,16 +201,56 @@ static void sceneInit(void) {
 }
 
 static void sceneRender(void) {
-    // Calculate the modelView matrix
-    C3D_Mtx modelView;
-    Mtx_Identity(&modelView);
-    Mtx_Translate(&modelView, 0.0, 0.0, -2.0, true);
-    Mtx_RotateX(&modelView, angleX, true);
-    Mtx_RotateY(&modelView, angleY, true);
+    circlePosition circle;
+    hidCircleRead(&circle);
+    float moveX = circle.dx / 156.0f;
+    float moveY = circle.dy / 156.0f;
 
-    // Rotate the cube each frame
-    angleX += M_PI / 180;
-    angleY += M_PI / 360;
+    u32 held = hidKeysHeld();
+
+    if (held & KEY_DLEFT)
+        camera.yaw += 0.03f;
+
+    if (held & KEY_DRIGHT)
+        camera.yaw -= 0.03f;
+
+    if (held & KEY_DUP)
+        camera.pitch += 0.03f;
+
+    if (held & KEY_DDOWN)
+        camera.pitch -= 0.03f;
+
+    printf("Pitch: %f Yaw: %f\n", camera.pitch, camera.yaw);
+
+    float cp = cosf(camera.pitch);
+    float sp = sinf(camera.pitch);
+
+    float cy = cosf(-camera.yaw);
+    float sy = sinf(-camera.yaw);
+
+    float forwardX = sy * cp;
+    float forwardY = sp;
+    float forwardZ = -cy * cp;
+
+    float speed  = 0.1;
+    float rightX = cy;
+    float rightZ = sy;
+
+    camera.x += (forwardX * moveY + rightX * moveX) * speed;
+    camera.y += (forwardY * moveY) * speed;
+    camera.z += (forwardZ * moveY + rightZ * moveX) * speed;
+
+    if (held & KEY_L)
+        camera.y += speed;
+    if (held & KEY_R)
+        camera.y -= speed;
+
+    C3D_Mtx modelView;
+
+    Mtx_Identity(&modelView);
+    Mtx_RotateX(&modelView, -camera.pitch, true);
+    Mtx_RotateY(&modelView, -camera.yaw, true);
+    Mtx_Translate(&modelView, -camera.x, -camera.y, -camera.z, true);
 
     // Update the uniforms
     C3D_FVUnifMtx4x4(GPU_VERTEX_SHADER, uLoc_projection, &projection);
