@@ -1,9 +1,10 @@
 #include <3ds.h>
 #include <citro3d.h>
+#include <stdio.h>
 #include <tex3ds.h>
 #include <string.h>
 #include "vshader_shbin.h"
-#include "kitten_t3x.h"
+#include "texture_t3x.h"
 
 #define CLEAR_COLOR 0x68B0D8FF
 
@@ -15,69 +16,87 @@ typedef struct {
     float normal[3];
 } vertex;
 
-static const vertex vertex_list[] = {
+enum FACE { FACE_PZ, FACE_MZ, FACE_PX, FACE_MX, FACE_PY, FACE_MY };
+
+#define UV_X (1.0f / 64.0f)
+#define UV_Y (1.0f / 4.0f)
+
+static const vertex cube_faces[] = {
     // First face (PZ)
     // First triangle
-    {{-0.5f, -0.5f, +0.5f}, {0.0f, 0.0f}, {0.0f, 0.0f, +1.0f}},
-    {{+0.5f, -0.5f, +0.5f}, {1.0f, 0.0f}, {0.0f, 0.0f, +1.0f}},
-    {{+0.5f, +0.5f, +0.5f}, {1.0f, 1.0f}, {0.0f, 0.0f, +1.0f}},
+    {{-0.5f, -0.5f, +0.5f}, {0.0f, 0.0f + 3 * UV_Y}, {0.0f, 0.0f, +1.0f}},
+    {{+0.5f, -0.5f, +0.5f}, {UV_X, 0.0f + 3 * UV_Y}, {0.0f, 0.0f, +1.0f}},
+    {{+0.5f, +0.5f, +0.5f}, {UV_X, UV_Y + 3 * UV_Y}, {0.0f, 0.0f, +1.0f}},
     // Second triangle
-    {{+0.5f, +0.5f, +0.5f}, {1.0f, 1.0f}, {0.0f, 0.0f, +1.0f}},
-    {{-0.5f, +0.5f, +0.5f}, {0.0f, 1.0f}, {0.0f, 0.0f, +1.0f}},
-    {{-0.5f, -0.5f, +0.5f}, {0.0f, 0.0f}, {0.0f, 0.0f, +1.0f}},
+    {{+0.5f, +0.5f, +0.5f}, {UV_X, UV_Y + 3 * UV_Y}, {0.0f, 0.0f, +1.0f}},
+    {{-0.5f, +0.5f, +0.5f}, {0.0f, UV_Y + 3 * UV_Y}, {0.0f, 0.0f, +1.0f}},
+    {{-0.5f, -0.5f, +0.5f}, {0.0f, 0.0f + 3 * UV_Y}, {0.0f, 0.0f, +1.0f}},
 
     // Second face (MZ)
     // First triangle
-    {{-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f}, {0.0f, 0.0f, -1.0f}},
-    {{-0.5f, +0.5f, -0.5f}, {1.0f, 0.0f}, {0.0f, 0.0f, -1.0f}},
-    {{+0.5f, +0.5f, -0.5f}, {1.0f, 1.0f}, {0.0f, 0.0f, -1.0f}},
+    {{-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f + 3 * UV_Y}, {0.0f, 0.0f, -1.0f}},
+    {{-0.5f, +0.5f, -0.5f}, {UV_X, 0.0f + 3 * UV_Y}, {0.0f, 0.0f, -1.0f}},
+    {{+0.5f, +0.5f, -0.5f}, {UV_X, UV_Y + 3 * UV_Y}, {0.0f, 0.0f, -1.0f}},
     // Second triangle
-    {{+0.5f, +0.5f, -0.5f}, {1.0f, 1.0f}, {0.0f, 0.0f, -1.0f}},
-    {{+0.5f, -0.5f, -0.5f}, {0.0f, 1.0f}, {0.0f, 0.0f, -1.0f}},
-    {{-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f}, {0.0f, 0.0f, -1.0f}},
+    {{+0.5f, +0.5f, -0.5f}, {UV_X, UV_Y + 3 * UV_Y}, {0.0f, 0.0f, -1.0f}},
+    {{+0.5f, -0.5f, -0.5f}, {0.0f, UV_Y + 3 * UV_Y}, {0.0f, 0.0f, -1.0f}},
+    {{-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f + 3 * UV_Y}, {0.0f, 0.0f, -1.0f}},
 
     // Third face (PX)
     // First triangle
-    {{+0.5f, -0.5f, -0.5f}, {0.0f, 0.0f}, {+1.0f, 0.0f, 0.0f}},
-    {{+0.5f, +0.5f, -0.5f}, {1.0f, 0.0f}, {+1.0f, 0.0f, 0.0f}},
-    {{+0.5f, +0.5f, +0.5f}, {1.0f, 1.0f}, {+1.0f, 0.0f, 0.0f}},
+    {{+0.5f, -0.5f, -0.5f}, {0.0f, 0.0f + 3 * UV_Y}, {+1.0f, 0.0f, 0.0f}},
+    {{+0.5f, +0.5f, -0.5f}, {UV_X, 0.0f + 3 * UV_Y}, {+1.0f, 0.0f, 0.0f}},
+    {{+0.5f, +0.5f, +0.5f}, {UV_X, UV_Y + 3 * UV_Y}, {+1.0f, 0.0f, 0.0f}},
     // Second triangle
-    {{+0.5f, +0.5f, +0.5f}, {1.0f, 1.0f}, {+1.0f, 0.0f, 0.0f}},
-    {{+0.5f, -0.5f, +0.5f}, {0.0f, 1.0f}, {+1.0f, 0.0f, 0.0f}},
-    {{+0.5f, -0.5f, -0.5f}, {0.0f, 0.0f}, {+1.0f, 0.0f, 0.0f}},
+    {{+0.5f, +0.5f, +0.5f}, {UV_X, UV_Y + 3 * UV_Y}, {+1.0f, 0.0f, 0.0f}},
+    {{+0.5f, -0.5f, +0.5f}, {0.0f, UV_Y + 3 * UV_Y}, {+1.0f, 0.0f, 0.0f}},
+    {{+0.5f, -0.5f, -0.5f}, {0.0f, 0.0f + 3 * UV_Y}, {+1.0f, 0.0f, 0.0f}},
 
     // Fourth face (MX)
     // First triangle
-    {{-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f}, {-1.0f, 0.0f, 0.0f}},
-    {{-0.5f, -0.5f, +0.5f}, {1.0f, 0.0f}, {-1.0f, 0.0f, 0.0f}},
-    {{-0.5f, +0.5f, +0.5f}, {1.0f, 1.0f}, {-1.0f, 0.0f, 0.0f}},
+    {{-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f + 3 * UV_Y}, {-1.0f, 0.0f, 0.0f}},
+    {{-0.5f, -0.5f, +0.5f}, {UV_X, 0.0f + 3 * UV_Y}, {-1.0f, 0.0f, 0.0f}},
+    {{-0.5f, +0.5f, +0.5f}, {UV_X, UV_Y + 3 * UV_Y}, {-1.0f, 0.0f, 0.0f}},
     // Second triangle
-    {{-0.5f, +0.5f, +0.5f}, {1.0f, 1.0f}, {-1.0f, 0.0f, 0.0f}},
-    {{-0.5f, +0.5f, -0.5f}, {0.0f, 1.0f}, {-1.0f, 0.0f, 0.0f}},
-    {{-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f}, {-1.0f, 0.0f, 0.0f}},
+    {{-0.5f, +0.5f, +0.5f}, {UV_X, UV_Y + 3 * UV_Y}, {-1.0f, 0.0f, 0.0f}},
+    {{-0.5f, +0.5f, -0.5f}, {0.0f, UV_Y + 3 * UV_Y}, {-1.0f, 0.0f, 0.0f}},
+    {{-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f + 3 * UV_Y}, {-1.0f, 0.0f, 0.0f}},
 
     // Fifth face (PY)
     // First triangle
-    {{-0.5f, +0.5f, -0.5f}, {0.0f, 0.0f}, {0.0f, +1.0f, 0.0f}},
-    {{-0.5f, +0.5f, +0.5f}, {1.0f, 0.0f}, {0.0f, +1.0f, 0.0f}},
-    {{+0.5f, +0.5f, +0.5f}, {1.0f, 1.0f}, {0.0f, +1.0f, 0.0f}},
+    {{-0.5f, +0.5f, -0.5f}, {0.0f, 0.0f + 3 * UV_Y}, {0.0f, +1.0f, 0.0f}},
+    {{-0.5f, +0.5f, +0.5f}, {UV_X, 0.0f + 3 * UV_Y}, {0.0f, +1.0f, 0.0f}},
+    {{+0.5f, +0.5f, +0.5f}, {UV_X, UV_Y + 3 * UV_Y}, {0.0f, +1.0f, 0.0f}},
     // Second triangle
-    {{+0.5f, +0.5f, +0.5f}, {1.0f, 1.0f}, {0.0f, +1.0f, 0.0f}},
-    {{+0.5f, +0.5f, -0.5f}, {0.0f, 1.0f}, {0.0f, +1.0f, 0.0f}},
-    {{-0.5f, +0.5f, -0.5f}, {0.0f, 0.0f}, {0.0f, +1.0f, 0.0f}},
+    {{+0.5f, +0.5f, +0.5f}, {UV_X, UV_Y + 3 * UV_Y}, {0.0f, +1.0f, 0.0f}},
+    {{+0.5f, +0.5f, -0.5f}, {0.0f, UV_Y + 3 * UV_Y}, {0.0f, +1.0f, 0.0f}},
+    {{-0.5f, +0.5f, -0.5f}, {0.0f, 0.0f + 3 * UV_Y}, {0.0f, +1.0f, 0.0f}},
 
     // Sixth face (MY)
     // First triangle
-    {{-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}},
-    {{+0.5f, -0.5f, -0.5f}, {1.0f, 0.0f}, {0.0f, -1.0f, 0.0f}},
-    {{+0.5f, -0.5f, +0.5f}, {1.0f, 1.0f}, {0.0f, -1.0f, 0.0f}},
+    {{-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f + 3 * UV_Y}, {0.0f, -1.0f, 0.0f}},
+    {{+0.5f, -0.5f, -0.5f}, {UV_X, 0.0f + 3 * UV_Y}, {0.0f, -1.0f, 0.0f}},
+    {{+0.5f, -0.5f, +0.5f}, {UV_X, UV_Y + 3 * UV_Y}, {0.0f, -1.0f, 0.0f}},
     // Second triangle
-    {{+0.5f, -0.5f, +0.5f}, {1.0f, 1.0f}, {0.0f, -1.0f, 0.0f}},
-    {{-0.5f, -0.5f, +0.5f}, {0.0f, 1.0f}, {0.0f, -1.0f, 0.0f}},
-    {{-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}},
+    {{+0.5f, -0.5f, +0.5f}, {UV_X, UV_Y + 3 * UV_Y}, {0.0f, -1.0f, 0.0f}},
+    {{-0.5f, -0.5f, +0.5f}, {0.0f, UV_Y + 3 * UV_Y}, {0.0f, -1.0f, 0.0f}},
+    {{-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f + 3 * UV_Y}, {0.0f, -1.0f, 0.0f}},
 };
 
-#define vertex_list_count (sizeof(vertex_list) / sizeof(vertex_list[0]))
+#define MAX_FACE_COUNT 1024
+#define MAX_VERTEX_COUNT (6 * MAX_FACE_COUNT)
+static vertex *vertex_list;
+static int vertex_count;
+
+static void add_face(int face, int x, int y, int block) {
+    memcpy(vertex_list + vertex_count, cube_faces + 6 * face, 6 * sizeof(vertex));
+    for (int i = 0; i < 6; i++) {
+        vertex_list[vertex_count + i].position[0] += x;
+        vertex_list[vertex_count + i].position[1] += x;
+        vertex_list[vertex_count + i].texcoord[0] += (block - 1) * UV_X;
+    }
+    vertex_count += 6;
+}
 
 static DVLB_s *vshader_dvlb;
 static shaderProgram_s program;
@@ -91,8 +110,7 @@ static C3D_Mtx material = {{
     {{1.0f, 0.0f, 0.0f, 0.0f}}, // Emission
 }};
 
-static void *vbo_data;
-static C3D_Tex kitten_tex;
+static C3D_Tex texture_tex;
 static float angleX = 0.0, angleY = 0.0;
 
 // Helper function for loading a texture from memory
@@ -132,19 +150,26 @@ static void sceneInit(void) {
     Mtx_PerspTilt(&projection, C3D_AngleFromDegrees(80.0f), C3D_AspectRatioTop, 0.01f, 1000.0f, false);
 
     // Create the VBO (vertex buffer object)
-    vbo_data = linearAlloc(sizeof(vertex_list));
-    memcpy(vbo_data, vertex_list, sizeof(vertex_list));
+    vertex_list  = linearAlloc(MAX_VERTEX_COUNT * sizeof(vertex));
+    vertex_count = 36;
+    // memcpy(vertex_list, cube_faces, vertex_count * sizeof(vertex));
+    add_face(FACE_PX, 0, 0, 1);
+    add_face(FACE_PY, 0, 0, 2);
+    add_face(FACE_PZ, 0, 0, 3);
+    add_face(FACE_MX, 0, 0, 4);
+    add_face(FACE_MY, 0, 0, 5);
+    add_face(FACE_MZ, 0, 0, 6);
 
     // Configure buffers
     C3D_BufInfo *bufInfo = C3D_GetBufInfo();
     BufInfo_Init(bufInfo);
-    BufInfo_Add(bufInfo, vbo_data, sizeof(vertex), 3, 0x210);
+    BufInfo_Add(bufInfo, vertex_list, sizeof(vertex), 3, 0x210);
 
     // Load the texture and bind it to the first texture unit
-    if (!loadTextureFromMem(&kitten_tex, NULL, kitten_t3x, kitten_t3x_size))
+    if (!loadTextureFromMem(&texture_tex, NULL, texture_t3x, texture_t3x_size))
         svcBreak(USERBREAK_PANIC);
-    C3D_TexSetFilter(&kitten_tex, GPU_LINEAR, GPU_NEAREST);
-    C3D_TexBind(0, &kitten_tex);
+    C3D_TexSetFilter(&texture_tex, GPU_NEAREST, GPU_NEAREST);
+    C3D_TexBind(0, &texture_tex);
 
     // Configure the first fragment shading substage to blend the texture color with
     // the vertex color (calculated by the vertex shader using a lighting algorithm)
@@ -159,7 +184,7 @@ static void sceneRender(void) {
     // Calculate the modelView matrix
     C3D_Mtx modelView;
     Mtx_Identity(&modelView);
-    Mtx_Translate(&modelView, 0.0, 0.0, -2.0 + 0.5 * sinf(angleX), true);
+    Mtx_Translate(&modelView, 0.0, 0.0, -2.0, true);
     Mtx_RotateX(&modelView, angleX, true);
     Mtx_RotateY(&modelView, angleY, true);
 
@@ -176,15 +201,15 @@ static void sceneRender(void) {
     C3D_FVUnifSet(GPU_VERTEX_SHADER, uLoc_lightClr, 1.0f, 1.0f, 1.0f, 1.0f);
 
     // Draw the VBO
-    C3D_DrawArrays(GPU_TRIANGLES, 0, vertex_list_count);
+    C3D_DrawArrays(GPU_TRIANGLES, 0, vertex_count);
 }
 
 static void sceneExit(void) {
     // Free the texture
-    C3D_TexDelete(&kitten_tex);
+    C3D_TexDelete(&texture_tex);
 
     // Free the VBO
-    linearFree(vbo_data);
+    linearFree(vertex_list);
 
     // Free the shader program
     shaderProgramFree(&program);
