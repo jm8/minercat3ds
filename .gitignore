@@ -1,0 +1,7 @@
+include
+*.o
+*.elf
+*.3dsx
+*.smdh
+*.core
+build/
