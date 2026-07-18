@@ -16,7 +16,7 @@
 #define UV_X (1.0f / 64.0f)
 #define UV_Y (1.0f / 4.0f)
 
-#define MAX_FACE_COUNT 1024
+#define MAX_FACE_COUNT (WORLD_WIDTH * WORLD_WIDTH * CHUNK_HEIGHT * 6 / 2)
 #define MAX_VERTEX_COUNT (6 * MAX_FACE_COUNT)
 
 static DVLB_s *vshader_dvlb;
@@ -125,39 +125,21 @@ void meshInit(Mesh *m) {
 void meshBuild(Mesh *m, char *chunk) {
     m->nVertex = 0;
 
-    // for (int yy = 0; yy < CHUNK_HEIGHT; yy++) {
-    //     for (int x = 0; x < WORLD_WIDTH; x++) {
-    //         for (int z = 0; z < WORLD_WIDTH; z++) {
-    //             if (yy == 0 || !chunk[W(x, yy - 1, z)])
-    //                 meshAddFace(m, FACE_MY, x, yy, z, chunk[W(x, yy, z)]);
-    //             if (yy == CHUNK_HEIGHT - 1 || !chunk[W(x, yy + 1, z)])
-    //                 meshAddFace(m, FACE_PY, x, yy, z, chunk[W(x, yy, z)]);
-    //             if (x == 0 || !chunk[W(x - 1, x, z)])
-    //                 meshAddFace(m, FACE_MX, x, yy, z, chunk[W(x, yy, z)]);
-    //             if (x == WORLD_WIDTH - 1 || !chunk[W(x + 1, yy, z)])
-    //                 meshAddFace(m, FACE_PX, x, yy, z, chunk[W(x, yy, z)]);
-    //             if (z == 0 || !chunk[W(x, x, z - 1)])
-    //                 meshAddFace(m, FACE_MZ, x, yy, z, chunk[W(x, yy, z)]);
-    //             if (z == WORLD_WIDTH - 1 || !chunk[W(x, yy, z + 1)])
-    //                 meshAddFace(m, FACE_PZ, x, yy, z, chunk[W(x, yy, z)]);
-    //         }
-    //     }
-    // }
     for (int yy = 0; yy < CHUNK_HEIGHT; yy++) {
         for (int x = 0; x < WORLD_WIDTH; x++) {
             for (int z = 0; z < WORLD_WIDTH; z++) {
                 if (yy == 0 || !chunk[W(x, yy - 1, z)])
-                    meshAddFace(m, FACE_MY, x, yy, z, 1);
+                    meshAddFace(m, FACE_MY, x, yy, z, chunk[W(x, yy, z)]);
                 if (yy == CHUNK_HEIGHT - 1 || !chunk[W(x, yy + 1, z)])
-                    meshAddFace(m, FACE_PY, x, yy, z, 1);
+                    meshAddFace(m, FACE_PY, x, yy, z, chunk[W(x, yy, z)]);
                 if (x == 0 || !chunk[W(x - 1, x, z)])
-                    meshAddFace(m, FACE_MX, x, yy, z, 1);
+                    meshAddFace(m, FACE_MX, x, yy, z, chunk[W(x, yy, z)]);
                 if (x == WORLD_WIDTH - 1 || !chunk[W(x + 1, yy, z)])
-                    meshAddFace(m, FACE_PX, x, yy, z, 1);
+                    meshAddFace(m, FACE_PX, x, yy, z, chunk[W(x, yy, z)]);
                 if (z == 0 || !chunk[W(x, x, z - 1)])
-                    meshAddFace(m, FACE_MZ, x, yy, z, 1);
+                    meshAddFace(m, FACE_MZ, x, yy, z, chunk[W(x, yy, z)]);
                 if (z == WORLD_WIDTH - 1 || !chunk[W(x, yy, z + 1)])
-                    meshAddFace(m, FACE_PZ, x, yy, z, 1);
+                    meshAddFace(m, FACE_PZ, x, yy, z, chunk[W(x, yy, z)]);
             }
         }
     }
