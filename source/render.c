@@ -106,19 +106,61 @@ static bool loadTextureFromMem(C3D_Tex *tex, C3D_TexCube *cube, const void *data
     return true;
 }
 
-void addFace(ChunkMesh *m, int face, int x, int y, int block) {
+void meshAddFace(Mesh *m, int face, int x, int y, int z, int block) {
     memcpy(m->vertices + m->nVertex, cube_faces + 6 * face, 6 * sizeof(vertex));
     for (int i = 0; i < 6; i++) {
         m->vertices[m->nVertex + i].position[0] += x;
-        m->vertices[m->nVertex + i].position[1] += x;
+        m->vertices[m->nVertex + i].position[1] += y;
+        m->vertices[m->nVertex + i].position[2] += z;
         m->vertices[m->nVertex + i].texcoord[0] += (block - 1) * UV_X;
     }
     m->nVertex += 6;
 }
 
-void chunkMeshInit(ChunkMesh *m) {
+void meshInit(Mesh *m) {
     m->vertices = linearAlloc(MAX_VERTEX_COUNT * sizeof(vertex));
     m->nVertex  = 0;
+}
+
+void meshBuild(Mesh *m, char *chunk) {
+    m->nVertex = 0;
+
+    // for (int yy = 0; yy < CHUNK_HEIGHT; yy++) {
+    //     for (int x = 0; x < WORLD_WIDTH; x++) {
+    //         for (int z = 0; z < WORLD_WIDTH; z++) {
+    //             if (yy == 0 || !chunk[W(x, yy - 1, z)])
+    //                 meshAddFace(m, FACE_MY, x, yy, z, chunk[W(x, yy, z)]);
+    //             if (yy == CHUNK_HEIGHT - 1 || !chunk[W(x, yy + 1, z)])
+    //                 meshAddFace(m, FACE_PY, x, yy, z, chunk[W(x, yy, z)]);
+    //             if (x == 0 || !chunk[W(x - 1, x, z)])
+    //                 meshAddFace(m, FACE_MX, x, yy, z, chunk[W(x, yy, z)]);
+    //             if (x == WORLD_WIDTH - 1 || !chunk[W(x + 1, yy, z)])
+    //                 meshAddFace(m, FACE_PX, x, yy, z, chunk[W(x, yy, z)]);
+    //             if (z == 0 || !chunk[W(x, x, z - 1)])
+    //                 meshAddFace(m, FACE_MZ, x, yy, z, chunk[W(x, yy, z)]);
+    //             if (z == WORLD_WIDTH - 1 || !chunk[W(x, yy, z + 1)])
+    //                 meshAddFace(m, FACE_PZ, x, yy, z, chunk[W(x, yy, z)]);
+    //         }
+    //     }
+    // }
+    for (int yy = 0; yy < CHUNK_HEIGHT; yy++) {
+        for (int x = 0; x < WORLD_WIDTH; x++) {
+            for (int z = 0; z < WORLD_WIDTH; z++) {
+                if (yy == 0 || !chunk[W(x, yy - 1, z)])
+                    meshAddFace(m, FACE_MY, x, yy, z, 1);
+                if (yy == CHUNK_HEIGHT - 1 || !chunk[W(x, yy + 1, z)])
+                    meshAddFace(m, FACE_PY, x, yy, z, 1);
+                if (x == 0 || !chunk[W(x - 1, x, z)])
+                    meshAddFace(m, FACE_MX, x, yy, z, 1);
+                if (x == WORLD_WIDTH - 1 || !chunk[W(x + 1, yy, z)])
+                    meshAddFace(m, FACE_PX, x, yy, z, 1);
+                if (z == 0 || !chunk[W(x, x, z - 1)])
+                    meshAddFace(m, FACE_MZ, x, yy, z, 1);
+                if (z == WORLD_WIDTH - 1 || !chunk[W(x, yy, z + 1)])
+                    meshAddFace(m, FACE_PZ, x, yy, z, 1);
+            }
+        }
+    }
 }
 
 void renderInit(Game *g) {
@@ -155,7 +197,7 @@ void renderInit(Game *g) {
     // world = linearAlloc(WORLD_WIDTH * WORLD_WIDTH * NUM_CHUKS * CHUNK_HEIGHT);
     // memset(world, 1, WORLD_WIDTH * WORLD_WIDTH * NUM_CHUKS * CHUNK_HEIGHT);
 
-    chunkMeshInit(&g->mesh);
+    meshInit(&g->mesh);
 
     // Configure buffers
     C3D_BufInfo *bufInfo = C3D_GetBufInfo();
@@ -168,12 +210,7 @@ void renderInit(Game *g) {
     C3D_TexSetFilter(&texture_tex, GPU_NEAREST, GPU_NEAREST);
     C3D_TexBind(0, &texture_tex);
 
-    addFace(&g->mesh, FACE_PX, 0, 0, 1);
-    addFace(&g->mesh, FACE_PY, 0, 0, 2);
-    addFace(&g->mesh, FACE_PZ, 0, 0, 3);
-    addFace(&g->mesh, FACE_MX, 0, 0, 4);
-    addFace(&g->mesh, FACE_MY, 0, 0, 5);
-    addFace(&g->mesh, FACE_MZ, 0, 0, 6);
+    meshAddFace(&g->mesh, FACE_PX, 0, 0, 0, 1);
 
     // Configure the first fragment shading substage to blend the texture color with
     // the vertex color (calculated by the vertex shader using a lighting algorithm)

@@ -9,13 +9,14 @@ typedef struct {
 typedef struct {
   int nVertex;
   vertex *vertices;
-} ChunkMesh;
+} Mesh;
 
 enum FACE { FACE_PZ, FACE_MZ, FACE_PX, FACE_MX, FACE_PY, FACE_MY };
 
-void chunkMeshInit(ChunkMesh *mesh);
+void meshInit(Mesh *mesh);
 
-void addFace(ChunkMesh *mesh, int face, int x, int y, int block);
+void meshAddFace(Mesh *mesh, int face, int x, int y, int z, int block);
+void meshBuild(Mesh *m, char *chunk);
 
 typedef struct Game Game;
 

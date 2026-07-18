@@ -1,3 +1,7 @@
+#include <3ds.h>
+#include <citro3d.h>
+#include <tex3ds.h>
+
 #include "game.h"
 #include "render.h"
 
@@ -55,6 +59,16 @@ int main() {
     renderInit(&g);
     g.camera.z += 3;
     g.camera.y += 1;
+
+    g.world = linearAlloc(NUM_CHUKS * CHUNK_HEIGHT * WORLD_WIDTH * WORLD_WIDTH);
+    for (int y = 0; y < NUM_CHUKS * CHUNK_HEIGHT; y++) {
+        for (int x = 0; x < WORLD_WIDTH; x++) {
+            for (int z = 0; z < WORLD_WIDTH; z++) {
+                g.world[W(x, y, z)] = 1;
+            }
+        }
+    }
+    meshBuild(&g.mesh, g.world);
 
     // Main loop
     while (aptMainLoop()) {

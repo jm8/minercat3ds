@@ -19,7 +19,13 @@ typedef struct Camera {
 
 typedef struct Game {
     Camera camera;
-    ChunkMesh mesh;
+    Mesh mesh;
 
     C3D_RenderTarget *target;
+
+    char *world;
 } Game;
+
+#define W(x,y,z) ((y) * WORLD_WIDTH * WORLD_WIDTH + (x) * WORLD_WIDTH + (z) * WORLD_WIDTH)
+
+
