@@ -2,6 +2,7 @@
 #include <citro3d.h>
 #include <tex3ds.h>
 
+#include "3ds/console.h"
 #include "game.h"
 #include "render.h"
 
@@ -57,8 +58,16 @@ static Game g;
 
 int main() {
     renderInit(&g);
-    g.camera.z += 3;
-    g.camera.y += 1;
+    // g.camera.x     = 8.7;
+    // g.camera.y     = 21.6;
+    // g.camera.z     = -7;
+    // g.camera.pitch = -0.7;
+    // g.camera.yaw   = -3.14;
+    g.camera.x     = 8.7;
+    g.camera.y     = 7.7;
+    g.camera.z     = -1.5;
+    g.camera.pitch = -1.749;
+    g.camera.yaw   = -3.14;
 
     g.world = linearAlloc(NUM_CHUKS * CHUNK_HEIGHT * WORLD_WIDTH * WORLD_WIDTH);
     for (int y = 0; y < NUM_CHUKS * CHUNK_HEIGHT; y++) {
@@ -69,22 +78,23 @@ int main() {
         }
     }
     meshBuild(&g.mesh, g.world);
+    consoleInit(GFX_BOTTOM, NULL);
 
-    // Main loop
     while (aptMainLoop()) {
+        printf("\x1b[2J\x1b[H");
+
         hidScanInput();
 
-        // Respond to user input
         u32 kDown = hidKeysDown();
         if (kDown & KEY_START)
-            break; // break in order to return to hbmenu
+            break;
 
         cameraUpdate(&g);
-        // Render the scene
+        printf("Camera (%.1f, %.1f, %.1f)\n", g.camera.x, g.camera.y, g.camera.z);
+
         renderFrame(&g);
     }
 
-    // Deinitialize the scene
     renderExit(&g);
 
     return 0;

@@ -15,6 +15,7 @@
 
 #define UV_X (1.0f / 64.0f)
 #define UV_Y (1.0f / 4.0f)
+#define UV_EDGE 0
 
 #define MAX_FACE_COUNT (WORLD_WIDTH * WORLD_WIDTH * CHUNK_HEIGHT * 6 / 2)
 #define MAX_VERTEX_COUNT (6 * MAX_FACE_COUNT)
@@ -35,65 +36,65 @@ static C3D_Tex texture_tex;
 static const vertex cube_faces[] = {
     // First face (PZ)
     // First triangle
-    {{-0.5f, -0.5f, +0.5f}, {0.0f, 0.0f + 3 * UV_Y}, {0.0f, 0.0f, +1.0f}},
-    {{+0.5f, -0.5f, +0.5f}, {UV_X, 0.0f + 3 * UV_Y}, {0.0f, 0.0f, +1.0f}},
-    {{+0.5f, +0.5f, +0.5f}, {UV_X, UV_Y + 3 * UV_Y}, {0.0f, 0.0f, +1.0f}},
+    {{-0.5f, -0.5f, +0.5f}, {0.0f + UV_EDGE, 0.0f + UV_EDGE}, {0.0f, 0.0f, +1.0f}},
+    {{+0.5f, -0.5f, +0.5f}, {UV_X - UV_EDGE, 0.0f + UV_EDGE}, {0.0f, 0.0f, +1.0f}},
+    {{+0.5f, +0.5f, +0.5f}, {UV_X - UV_EDGE, UV_Y - UV_EDGE}, {0.0f, 0.0f, +1.0f}},
     // Second triangle
-    {{+0.5f, +0.5f, +0.5f}, {UV_X, UV_Y + 3 * UV_Y}, {0.0f, 0.0f, +1.0f}},
-    {{-0.5f, +0.5f, +0.5f}, {0.0f, UV_Y + 3 * UV_Y}, {0.0f, 0.0f, +1.0f}},
-    {{-0.5f, -0.5f, +0.5f}, {0.0f, 0.0f + 3 * UV_Y}, {0.0f, 0.0f, +1.0f}},
+    {{+0.5f, +0.5f, +0.5f}, {UV_X - UV_EDGE, UV_Y - UV_EDGE}, {0.0f, 0.0f, +1.0f}},
+    {{-0.5f, +0.5f, +0.5f}, {0.0f + UV_EDGE, UV_Y - UV_EDGE}, {0.0f, 0.0f, +1.0f}},
+    {{-0.5f, -0.5f, +0.5f}, {0.0f + UV_EDGE, 0.0f + UV_EDGE}, {0.0f, 0.0f, +1.0f}},
 
     // Second face (MZ)
     // First triangle
-    {{-0.5f, -0.5f, -0.5f}, {UV_X, 0.0f + 3 * UV_Y}, {0, 0, -1}},
-    {{-0.5f, +0.5f, -0.5f}, {UV_X, UV_Y + 3 * UV_Y}, {0, 0, -1}},
-    {{+0.5f, +0.5f, -0.5f}, {0.0f, UV_Y + 3 * UV_Y}, {0, 0, -1}},
+    {{-0.5f, -0.5f, -0.5f}, {UV_X - UV_EDGE, 0.0f + UV_EDGE}, {0, 0, -1}},
+    {{-0.5f, +0.5f, -0.5f}, {UV_X - UV_EDGE, UV_Y - UV_EDGE}, {0, 0, -1}},
+    {{+0.5f, +0.5f, -0.5f}, {0.0f + UV_EDGE, UV_Y - UV_EDGE}, {0, 0, -1}},
     // Second triangle
-    {{+0.5f, +0.5f, -0.5f}, {0.0f, UV_Y + 3 * UV_Y}, {0, 0, -1}},
-    {{+0.5f, -0.5f, -0.5f}, {0.0f, 0.0f + 3 * UV_Y}, {0, 0, -1}},
-    {{-0.5f, -0.5f, -0.5f}, {UV_X, 0.0f + 3 * UV_Y}, {0, 0, -1}},
+    {{+0.5f, +0.5f, -0.5f}, {0.0f + UV_EDGE, UV_Y - UV_EDGE}, {0, 0, -1}},
+    {{+0.5f, -0.5f, -0.5f}, {0.0f + UV_EDGE, 0.0f + UV_EDGE}, {0, 0, -1}},
+    {{-0.5f, -0.5f, -0.5f}, {UV_X - UV_EDGE, 0.0f + UV_EDGE}, {0, 0, -1}},
 
     // Third face (PX)
     // First triangle
     // +X face
-    {{+0.5f, -0.5f, -0.5f}, {UV_X, 0.0f + 3 * UV_Y}, {+1, 0, 0}},
-    {{+0.5f, +0.5f, -0.5f}, {UV_X, UV_Y + 3 * UV_Y}, {+1, 0, 0}},
-    {{+0.5f, +0.5f, +0.5f}, {0.0f, UV_Y + 3 * UV_Y}, {+1, 0, 0}},
+    {{+0.5f, -0.5f, -0.5f}, {UV_X - UV_EDGE, 0.0f + UV_EDGE}, {+1, 0, 0}},
+    {{+0.5f, +0.5f, -0.5f}, {UV_X - UV_EDGE, UV_Y - UV_EDGE}, {+1, 0, 0}},
+    {{+0.5f, +0.5f, +0.5f}, {0.0f + UV_EDGE, UV_Y - UV_EDGE}, {+1, 0, 0}},
 
-    {{+0.5f, +0.5f, +0.5f}, {0.0f, UV_Y + 3 * UV_Y}, {+1, 0, 0}},
-    {{+0.5f, -0.5f, +0.5f}, {0.0f, 0.0f + 3 * UV_Y}, {+1, 0, 0}},
-    {{+0.5f, -0.5f, -0.5f}, {UV_X, 0.0f + 3 * UV_Y}, {+1, 0, 0}},
+    {{+0.5f, +0.5f, +0.5f}, {0.0f + UV_EDGE, UV_Y - UV_EDGE}, {+1, 0, 0}},
+    {{+0.5f, -0.5f, +0.5f}, {0.0f + UV_EDGE, 0.0f + UV_EDGE}, {+1, 0, 0}},
+    {{+0.5f, -0.5f, -0.5f}, {UV_X - UV_EDGE, 0.0f + UV_EDGE}, {+1, 0, 0}},
 
     // Fourth face (MX)
     // First triangle
-    {{-0.5f, -0.5f, -0.5f}, {UV_X, 0.0f + 3 * UV_Y}, {-1, 0, 0}},
-    {{-0.5f, -0.5f, +0.5f}, {0.0f, 0.0f + 3 * UV_Y}, {-1, 0, 0}},
-    {{-0.5f, +0.5f, +0.5f}, {0.0f, UV_Y + 3 * UV_Y}, {-1, 0, 0}},
+    {{-0.5f, -0.5f, -0.5f}, {UV_X - UV_EDGE, 0.0f + UV_EDGE}, {-1, 0, 0}},
+    {{-0.5f, -0.5f, +0.5f}, {0.0f + UV_EDGE, 0.0f + UV_EDGE}, {-1, 0, 0}},
+    {{-0.5f, +0.5f, +0.5f}, {0.0f + UV_EDGE, UV_Y - UV_EDGE}, {-1, 0, 0}},
     // Second triangle
-    {{-0.5f, +0.5f, +0.5f}, {0.0f, UV_Y + 3 * UV_Y}, {-1, 0, 0}},
-    {{-0.5f, +0.5f, -0.5f}, {UV_X, UV_Y + 3 * UV_Y}, {-1, 0, 0}},
-    {{-0.5f, -0.5f, -0.5f}, {UV_X, 0.0f + 3 * UV_Y}, {-1, 0, 0}},
+    {{-0.5f, +0.5f, +0.5f}, {0.0f + UV_EDGE, UV_Y - UV_EDGE}, {-1, 0, 0}},
+    {{-0.5f, +0.5f, -0.5f}, {UV_X - UV_EDGE, UV_Y - UV_EDGE}, {-1, 0, 0}},
+    {{-0.5f, -0.5f, -0.5f}, {UV_X - UV_EDGE, 0.0f + UV_EDGE}, {-1, 0, 0}},
 
     // Fifth face (PY)
     // First triangle
-    {{-0.5f, +0.5f, -0.5f}, {0.0f, 0.0f + 3 * UV_Y}, {0.0f, +1.0f, 0.0f}},
-    {{-0.5f, +0.5f, +0.5f}, {UV_X, 0.0f + 3 * UV_Y}, {0.0f, +1.0f, 0.0f}},
-    {{+0.5f, +0.5f, +0.5f}, {UV_X, UV_Y + 3 * UV_Y}, {0.0f, +1.0f, 0.0f}},
+    {{-0.5f, +0.5f, -0.5f}, {0.0f + UV_EDGE, 0.0f + UV_EDGE}, {0.0f, +1.0f, 0.0f}},
+    {{-0.5f, +0.5f, +0.5f}, {UV_X - UV_EDGE, 0.0f + UV_EDGE}, {0.0f, +1.0f, 0.0f}},
+    {{+0.5f, +0.5f, +0.5f}, {UV_X - UV_EDGE, UV_Y - UV_EDGE}, {0.0f, +1.0f, 0.0f}},
     // Second triangle
-    {{+0.5f, +0.5f, +0.5f}, {UV_X, UV_Y + 3 * UV_Y}, {0.0f, +1.0f, 0.0f}},
-    {{+0.5f, +0.5f, -0.5f}, {0.0f, UV_Y + 3 * UV_Y}, {0.0f, +1.0f, 0.0f}},
-    {{-0.5f, +0.5f, -0.5f}, {0.0f, 0.0f + 3 * UV_Y}, {0.0f, +1.0f, 0.0f}},
+    {{+0.5f, +0.5f, +0.5f}, {UV_X - UV_EDGE, UV_Y - UV_EDGE}, {0.0f, +1.0f, 0.0f}},
+    {{+0.5f, +0.5f, -0.5f}, {0.0f + UV_EDGE, UV_Y - UV_EDGE}, {0.0f, +1.0f, 0.0f}},
+    {{-0.5f, +0.5f, -0.5f}, {0.0f + UV_EDGE, 0.0f + UV_EDGE}, {0.0f, +1.0f, 0.0f}},
 
     // Sixth face (MY)
     // First triangle
-    {{-0.5f, -0.5f, -0.5f}, {0.0f, UV_Y + 3 * UV_Y}, {0.0f, -1.0f, 0.0f}},
-    {{+0.5f, -0.5f, -0.5f}, {0.0f, 0.0f + 3 * UV_Y}, {0.0f, -1.0f, 0.0f}},
-    {{+0.5f, -0.5f, +0.5f}, {UV_X, 0.0f + 3 * UV_Y}, {0.0f, -1.0f, 0.0f}},
+    {{-0.5f, -0.5f, -0.5f}, {0.0f + UV_EDGE, UV_Y - UV_EDGE}, {0.0f, -1.0f, 0.0f}},
+    {{+0.5f, -0.5f, -0.5f}, {0.0f + UV_EDGE, 0.0f + UV_EDGE}, {0.0f, -1.0f, 0.0f}},
+    {{+0.5f, -0.5f, +0.5f}, {UV_X - UV_EDGE, 0.0f + UV_EDGE}, {0.0f, -1.0f, 0.0f}},
 
     // Second triangle
-    {{+0.5f, -0.5f, +0.5f}, {UV_X, 0.0f + 3 * UV_Y}, {0.0f, -1.0f, 0.0f}},
-    {{-0.5f, -0.5f, +0.5f}, {UV_X, UV_Y + 3 * UV_Y}, {0.0f, -1.0f, 0.0f}},
-    {{-0.5f, -0.5f, -0.5f}, {0.0f, UV_Y + 3 * UV_Y}, {0.0f, -1.0f, 0.0f}},
+    {{+0.5f, -0.5f, +0.5f}, {UV_X - UV_EDGE, 0.0f + UV_EDGE}, {0.0f, -1.0f, 0.0f}},
+    {{-0.5f, -0.5f, +0.5f}, {UV_X - UV_EDGE, UV_Y - UV_EDGE}, {0.0f, -1.0f, 0.0f}},
+    {{-0.5f, -0.5f, -0.5f}, {0.0f + UV_EDGE, UV_Y - UV_EDGE}, {0.0f, -1.0f, 0.0f}},
 };
 
 static bool loadTextureFromMem(C3D_Tex *tex, C3D_TexCube *cube, const void *data, size_t size) {
@@ -106,13 +107,15 @@ static bool loadTextureFromMem(C3D_Tex *tex, C3D_TexCube *cube, const void *data
     return true;
 }
 
-void meshAddFace(Mesh *m, int face, int x, int y, int z, int block) {
+#define OVERLAY_OFFSET 0.001
+void meshAddFace(Mesh *m, int face, int x, int y, int z, int texX, int texY, int overlay) {
     memcpy(m->vertices + m->nVertex, cube_faces + 6 * face, 6 * sizeof(vertex));
     for (int i = 0; i < 6; i++) {
-        m->vertices[m->nVertex + i].position[0] += x;
-        m->vertices[m->nVertex + i].position[1] += y;
-        m->vertices[m->nVertex + i].position[2] += z;
-        m->vertices[m->nVertex + i].texcoord[0] += (block - 1) * UV_X;
+        m->vertices[m->nVertex + i].position[0] += x + OVERLAY_OFFSET * overlay * m->vertices[m->nVertex + i].normal[0];
+        m->vertices[m->nVertex + i].position[1] += y + OVERLAY_OFFSET * overlay * m->vertices[m->nVertex + i].normal[1];
+        m->vertices[m->nVertex + i].position[2] += z + OVERLAY_OFFSET * overlay * m->vertices[m->nVertex + i].normal[2];
+        m->vertices[m->nVertex + i].texcoord[1] += (3 - texY) * UV_Y;
+        m->vertices[m->nVertex + i].texcoord[0] += texX * UV_X;
     }
     m->nVertex += 6;
 }
@@ -125,24 +128,41 @@ void meshInit(Mesh *m) {
 void meshBuild(Mesh *m, char *chunk) {
     m->nVertex = 0;
 
+#define ADD_FACES(texX, texY, overlay) \
+    { \
+        if (yy == 0 || !chunk[W(x, yy - 1, z)]) \
+            meshAddFace(m, FACE_MY, x, yy, z, (texX), (texY), overlay); \
+        if (yy == CHUNK_HEIGHT - 1 || !chunk[W(x, yy + 1, z)]) \
+            meshAddFace(m, FACE_PY, x, yy, z, (texX), (texY), overlay); \
+        if (x == 0 || !chunk[W(x - 1, x, z)]) \
+            meshAddFace(m, FACE_MX, x, yy, z, (texX), (texY), overlay); \
+        if (x == WORLD_WIDTH - 1 || !chunk[W(x + 1, yy, z)]) \
+            meshAddFace(m, FACE_PX, x, yy, z, (texX), (texY), overlay); \
+        if (z == 0 || !chunk[W(x, x, z - 1)]) \
+            meshAddFace(m, FACE_MZ, x, yy, z, (texX), (texY), overlay); \
+        if (z == WORLD_WIDTH - 1 || !chunk[W(x, yy, z + 1)]) \
+            meshAddFace(m, FACE_PZ, x, yy, z, (texX), (texY), overlay); \
+    }
+
     for (int yy = 0; yy < CHUNK_HEIGHT; yy++) {
         for (int x = 0; x < WORLD_WIDTH; x++) {
             for (int z = 0; z < WORLD_WIDTH; z++) {
-                if (yy == 0 || !chunk[W(x, yy - 1, z)])
-                    meshAddFace(m, FACE_MY, x, yy, z, chunk[W(x, yy, z)]);
-                if (yy == CHUNK_HEIGHT - 1 || !chunk[W(x, yy + 1, z)])
-                    meshAddFace(m, FACE_PY, x, yy, z, chunk[W(x, yy, z)]);
-                if (x == 0 || !chunk[W(x - 1, x, z)])
-                    meshAddFace(m, FACE_MX, x, yy, z, chunk[W(x, yy, z)]);
-                if (x == WORLD_WIDTH - 1 || !chunk[W(x + 1, yy, z)])
-                    meshAddFace(m, FACE_PX, x, yy, z, chunk[W(x, yy, z)]);
-                if (z == 0 || !chunk[W(x, x, z - 1)])
-                    meshAddFace(m, FACE_MZ, x, yy, z, chunk[W(x, yy, z)]);
-                if (z == WORLD_WIDTH - 1 || !chunk[W(x, yy, z + 1)])
-                    meshAddFace(m, FACE_PZ, x, yy, z, chunk[W(x, yy, z)]);
+                int b = chunk[W(x, yy, z)];
+                if (b)
+                    ADD_FACES(b - 1, 0, 0);
             }
         }
     }
+    for (int yy = 0; yy < CHUNK_HEIGHT; yy++) {
+        for (int x = 0; x < WORLD_WIDTH; x++) {
+            for (int z = 0; z < WORLD_WIDTH; z++) {
+                int b = chunk[W(x, yy, z)];
+                ADD_FACES(2, 1, 1);
+            }
+        }
+    }
+
+#undef ADD_FACES
 }
 
 void renderInit(Game *g) {
@@ -176,9 +196,6 @@ void renderInit(Game *g) {
     // Compute the projection matrix
     Mtx_PerspTilt(&projection, C3D_AngleFromDegrees(80.0f), C3D_AspectRatioTop, 0.01f, 1000.0f, false);
 
-    // world = linearAlloc(WORLD_WIDTH * WORLD_WIDTH * NUM_CHUKS * CHUNK_HEIGHT);
-    // memset(world, 1, WORLD_WIDTH * WORLD_WIDTH * NUM_CHUKS * CHUNK_HEIGHT);
-
     meshInit(&g->mesh);
 
     // Configure buffers
@@ -191,8 +208,6 @@ void renderInit(Game *g) {
         svcBreak(USERBREAK_PANIC);
     C3D_TexSetFilter(&texture_tex, GPU_NEAREST, GPU_NEAREST);
     C3D_TexBind(0, &texture_tex);
-
-    meshAddFace(&g->mesh, FACE_PX, 0, 0, 0, 1);
 
     // Configure the first fragment shading substage to blend the texture color with
     // the vertex color (calculated by the vertex shader using a lighting algorithm)
