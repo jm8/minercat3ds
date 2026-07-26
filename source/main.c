@@ -5,7 +5,6 @@
 
 #include "3ds/console.h"
 #include "3ds/services/hid.h"
-#include "3ds/services/y2r.h"
 #include "c3d/maths.h"
 #include "c3d/types.h"
 #include "game.h"
@@ -115,8 +114,13 @@ void damage(Game *g) {
     int i         = W(g->selectedX, g->selectedY, g->selectedZ);
     int oldDamage = (g->world[i] & MASK_DAMAGE) >> SHIFT_DAMAGE;
     int newDamage = oldDamage + 1;
-    g->world[i]   = (g->world[i] & MASK_BLOCK) | (newDamage << SHIFT_DAMAGE);
-    meshUpdateDamage(&g->mesh, g->world, g->selectedX, g->selectedY, g->selectedZ, oldDamage, newDamage);
+    if (newDamage > 10) {
+        g->world[i] = 0;
+        meshBuild(&g->mesh, g->world);
+    } else {
+        g->world[i] = (g->world[i] & MASK_BLOCK) | (newDamage << SHIFT_DAMAGE);
+        meshUpdateDamage(&g->mesh, g->world, g->selectedX, g->selectedY, g->selectedZ, oldDamage, newDamage);
+    }
 }
 
 int main() {

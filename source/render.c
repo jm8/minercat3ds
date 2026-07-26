@@ -166,6 +166,20 @@ void meshBuild(Mesh *m, char *chunk) {
         }
     }
     m->nSolidVertex = m->nVertex;
+
+    for (int yy = 0; yy < CHUNK_HEIGHT; yy++) {
+        int o    = blockIdOffset(yy);
+        int topO = (o == 1) ? 0 : o;
+        for (int x = 0; x < WORLD_WIDTH; x++) {
+            for (int z = 0; z < WORLD_WIDTH; z++) {
+                int damage = (chunk[W(x, yy, z)] & MASK_DAMAGE) >> SHIFT_DAMAGE;
+                if (damage) {
+                    ADD_FACES(damage, damage, 1, 1);
+                }
+            }
+        }
+    }
+    m->nDamageVertex = m->nVertex - m->nSolidVertex;
 }
 
 void meshUpdateSelected(Mesh *m, char *chunk, int selected, int x, int yy, int z) {
