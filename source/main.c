@@ -4,6 +4,8 @@
 #include <tex3ds.h>
 
 #include "3ds/console.h"
+#include "3ds/services/hid.h"
+#include "3ds/services/y2r.h"
 #include "c3d/maths.h"
 #include "c3d/types.h"
 #include "game.h"
@@ -67,7 +69,7 @@ int getblock(Game *g, int x, int y, int z) {
     if (y < 0 || y >= CHUNK_HEIGHT * NUM_CHUNKS)
         return 0;
 
-    return g->world[W(x, y, z)];
+    return g->world[W(x, y, z)] & MASK_BLOCK;
 }
 
 void raycast(Game *g) {
@@ -109,6 +111,14 @@ void raycast(Game *g) {
     }
 }
 
+void damage(Game *g) {
+    int i         = W(g->selectedX, g->selectedY, g->selectedZ);
+    int oldDamage = (g->world[i] & MASK_DAMAGE) >> SHIFT_DAMAGE;
+    int newDamage = oldDamage + 1;
+    g->world[i]   = (g->world[i] & MASK_BLOCK) | (newDamage << SHIFT_DAMAGE);
+    meshUpdateDamage(&g->mesh, g->world, g->selectedX, g->selectedY, g->selectedZ, oldDamage, newDamage);
+}
+
 int main() {
     renderInit(&g);
     // g.camera.x     = 8.7;
@@ -132,6 +142,7 @@ int main() {
     }
     meshBuild(&g.mesh, g.world);
     consoleInit(GFX_BOTTOM, NULL);
+    bool lastKeyDownA = false;
     while (aptMainLoop()) {
         printf("\x1b[2J\x1b[H");
 
@@ -145,6 +156,15 @@ int main() {
 
         raycast(&g);
         meshUpdateSelected(&g.mesh, g.world, g.selected, g.selectedX, g.selectedY, g.selectedZ);
+
+        if (kDown & KEY_A) {
+            if (!lastKeyDownA && g.selected) {
+                damage(&g);
+            }
+            lastKeyDownA = true;
+        } else {
+            lastKeyDownA = false;
+        }
 
         printf("raycast (%d, %.1d, %.1d, %.1d)\n", g.selected, g.selectedX, g.selectedY, g.selectedZ);
         printf("Camera (%.1f, %.1f, %.1f)\n", g.camera.x, g.camera.y, g.camera.z);

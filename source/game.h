@@ -13,6 +13,10 @@
 #define NUM_CHUNKS 1
 #define WORLD_SIZE (WORLD_WIDTH * WORLD_WIDTH * CHUNK_HEIGHT * NUM_CHUNKS)
 
+#define MASK_BLOCK 0x7
+#define MASK_DAMAGE 0x1f8
+#define SHIFT_DAMAGE 3
+
 typedef struct Camera {
     float x, y, z;
     float yaw;

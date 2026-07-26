@@ -36,65 +36,65 @@ static C3D_Tex texture_tex;
 static const vertex cube_faces[] = {
     // First face (PZ)
     // First triangle
-    {{-0.5f, -0.5f, +0.5f}, {0.0f + UV_EDGE, 0.0f + UV_EDGE}, {0.0f, 0.0f, +1.0f}},
-    {{+0.5f, -0.5f, +0.5f}, {UV_X - UV_EDGE, 0.0f + UV_EDGE}, {0.0f, 0.0f, +1.0f}},
-    {{+0.5f, +0.5f, +0.5f}, {UV_X - UV_EDGE, UV_Y - UV_EDGE}, {0.0f, 0.0f, +1.0f}},
+    {{.5 + -0.5f, .5 + -0.5f, .5 + +0.5f}, {0.0f + UV_EDGE, 0.0f + UV_EDGE}, {0.0f, 0.0f, +1.0f}},
+    {{.5 + +0.5f, .5 + -0.5f, .5 + +0.5f}, {UV_X - UV_EDGE, 0.0f + UV_EDGE}, {0.0f, 0.0f, +1.0f}},
+    {{.5 + +0.5f, .5 + +0.5f, .5 + +0.5f}, {UV_X - UV_EDGE, UV_Y - UV_EDGE}, {0.0f, 0.0f, +1.0f}},
     // Second triangle
-    {{+0.5f, +0.5f, +0.5f}, {UV_X - UV_EDGE, UV_Y - UV_EDGE}, {0.0f, 0.0f, +1.0f}},
-    {{-0.5f, +0.5f, +0.5f}, {0.0f + UV_EDGE, UV_Y - UV_EDGE}, {0.0f, 0.0f, +1.0f}},
-    {{-0.5f, -0.5f, +0.5f}, {0.0f + UV_EDGE, 0.0f + UV_EDGE}, {0.0f, 0.0f, +1.0f}},
+    {{.5 + +0.5f, .5 + +0.5f, .5 + +0.5f}, {UV_X - UV_EDGE, UV_Y - UV_EDGE}, {0.0f, 0.0f, +1.0f}},
+    {{.5 + -0.5f, .5 + +0.5f, .5 + +0.5f}, {0.0f + UV_EDGE, UV_Y - UV_EDGE}, {0.0f, 0.0f, +1.0f}},
+    {{.5 + -0.5f, .5 + -0.5f, .5 + +0.5f}, {0.0f + UV_EDGE, 0.0f + UV_EDGE}, {0.0f, 0.0f, +1.0f}},
 
     // Second face (MZ)
     // First triangle
-    {{-0.5f, -0.5f, -0.5f}, {UV_X - UV_EDGE, 0.0f + UV_EDGE}, {0, 0, -1}},
-    {{-0.5f, +0.5f, -0.5f}, {UV_X - UV_EDGE, UV_Y - UV_EDGE}, {0, 0, -1}},
-    {{+0.5f, +0.5f, -0.5f}, {0.0f + UV_EDGE, UV_Y - UV_EDGE}, {0, 0, -1}},
+    {{.5 + -0.5f, .5 + -0.5f, .5 + -0.5f}, {UV_X - UV_EDGE, 0.0f + UV_EDGE}, {0, 0, -1}},
+    {{.5 + -0.5f, .5 + +0.5f, .5 + -0.5f}, {UV_X - UV_EDGE, UV_Y - UV_EDGE}, {0, 0, -1}},
+    {{.5 + +0.5f, .5 + +0.5f, .5 + -0.5f}, {0.0f + UV_EDGE, UV_Y - UV_EDGE}, {0, 0, -1}},
     // Second triangle
-    {{+0.5f, +0.5f, -0.5f}, {0.0f + UV_EDGE, UV_Y - UV_EDGE}, {0, 0, -1}},
-    {{+0.5f, -0.5f, -0.5f}, {0.0f + UV_EDGE, 0.0f + UV_EDGE}, {0, 0, -1}},
-    {{-0.5f, -0.5f, -0.5f}, {UV_X - UV_EDGE, 0.0f + UV_EDGE}, {0, 0, -1}},
+    {{.5 + +0.5f, .5 + +0.5f, .5 + -0.5f}, {0.0f + UV_EDGE, UV_Y - UV_EDGE}, {0, 0, -1}},
+    {{.5 + +0.5f, .5 + -0.5f, .5 + -0.5f}, {0.0f + UV_EDGE, 0.0f + UV_EDGE}, {0, 0, -1}},
+    {{.5 + -0.5f, .5 + -0.5f, .5 + -0.5f}, {UV_X - UV_EDGE, 0.0f + UV_EDGE}, {0, 0, -1}},
 
     // Third face (PX)
     // First triangle
     // +X face
-    {{+0.5f, -0.5f, -0.5f}, {UV_X - UV_EDGE, 0.0f + UV_EDGE}, {+1, 0, 0}},
-    {{+0.5f, +0.5f, -0.5f}, {UV_X - UV_EDGE, UV_Y - UV_EDGE}, {+1, 0, 0}},
-    {{+0.5f, +0.5f, +0.5f}, {0.0f + UV_EDGE, UV_Y - UV_EDGE}, {+1, 0, 0}},
+    {{.5 + +0.5f, .5 + -0.5f, .5 + -0.5f}, {UV_X - UV_EDGE, 0.0f + UV_EDGE}, {+1, 0, 0}},
+    {{.5 + +0.5f, .5 + +0.5f, .5 + -0.5f}, {UV_X - UV_EDGE, UV_Y - UV_EDGE}, {+1, 0, 0}},
+    {{.5 + +0.5f, .5 + +0.5f, .5 + +0.5f}, {0.0f + UV_EDGE, UV_Y - UV_EDGE}, {+1, 0, 0}},
 
-    {{+0.5f, +0.5f, +0.5f}, {0.0f + UV_EDGE, UV_Y - UV_EDGE}, {+1, 0, 0}},
-    {{+0.5f, -0.5f, +0.5f}, {0.0f + UV_EDGE, 0.0f + UV_EDGE}, {+1, 0, 0}},
-    {{+0.5f, -0.5f, -0.5f}, {UV_X - UV_EDGE, 0.0f + UV_EDGE}, {+1, 0, 0}},
+    {{.5 + +0.5f, .5 + +0.5f, .5 + +0.5f}, {0.0f + UV_EDGE, UV_Y - UV_EDGE}, {+1, 0, 0}},
+    {{.5 + +0.5f, .5 + -0.5f, .5 + +0.5f}, {0.0f + UV_EDGE, 0.0f + UV_EDGE}, {+1, 0, 0}},
+    {{.5 + +0.5f, .5 + -0.5f, .5 + -0.5f}, {UV_X - UV_EDGE, 0.0f + UV_EDGE}, {+1, 0, 0}},
 
     // Fourth face (MX)
     // First triangle
-    {{-0.5f, -0.5f, -0.5f}, {UV_X - UV_EDGE, 0.0f + UV_EDGE}, {-1, 0, 0}},
-    {{-0.5f, -0.5f, +0.5f}, {0.0f + UV_EDGE, 0.0f + UV_EDGE}, {-1, 0, 0}},
-    {{-0.5f, +0.5f, +0.5f}, {0.0f + UV_EDGE, UV_Y - UV_EDGE}, {-1, 0, 0}},
+    {{.5 + -0.5f, .5 + -0.5f, .5 + -0.5f}, {UV_X - UV_EDGE, 0.0f + UV_EDGE}, {-1, 0, 0}},
+    {{.5 + -0.5f, .5 + -0.5f, .5 + +0.5f}, {0.0f + UV_EDGE, 0.0f + UV_EDGE}, {-1, 0, 0}},
+    {{.5 + -0.5f, .5 + +0.5f, .5 + +0.5f}, {0.0f + UV_EDGE, UV_Y - UV_EDGE}, {-1, 0, 0}},
     // Second triangle
-    {{-0.5f, +0.5f, +0.5f}, {0.0f + UV_EDGE, UV_Y - UV_EDGE}, {-1, 0, 0}},
-    {{-0.5f, +0.5f, -0.5f}, {UV_X - UV_EDGE, UV_Y - UV_EDGE}, {-1, 0, 0}},
-    {{-0.5f, -0.5f, -0.5f}, {UV_X - UV_EDGE, 0.0f + UV_EDGE}, {-1, 0, 0}},
+    {{.5 + -0.5f, .5 + +0.5f, .5 + +0.5f}, {0.0f + UV_EDGE, UV_Y - UV_EDGE}, {-1, 0, 0}},
+    {{.5 + -0.5f, .5 + +0.5f, .5 + -0.5f}, {UV_X - UV_EDGE, UV_Y - UV_EDGE}, {-1, 0, 0}},
+    {{.5 + -0.5f, .5 + -0.5f, .5 + -0.5f}, {UV_X - UV_EDGE, 0.0f + UV_EDGE}, {-1, 0, 0}},
 
     // Fifth face (PY)
     // First triangle
-    {{-0.5f, +0.5f, -0.5f}, {0.0f + UV_EDGE, 0.0f + UV_EDGE}, {0.0f, +1.0f, 0.0f}},
-    {{-0.5f, +0.5f, +0.5f}, {UV_X - UV_EDGE, 0.0f + UV_EDGE}, {0.0f, +1.0f, 0.0f}},
-    {{+0.5f, +0.5f, +0.5f}, {UV_X - UV_EDGE, UV_Y - UV_EDGE}, {0.0f, +1.0f, 0.0f}},
+    {{.5 + -0.5f, .5 + +0.5f, .5 + -0.5f}, {0.0f + UV_EDGE, 0.0f + UV_EDGE}, {0.0f, +1.0f, 0.0f}},
+    {{.5 + -0.5f, .5 + +0.5f, .5 + +0.5f}, {UV_X - UV_EDGE, 0.0f + UV_EDGE}, {0.0f, +1.0f, 0.0f}},
+    {{.5 + +0.5f, .5 + +0.5f, .5 + +0.5f}, {UV_X - UV_EDGE, UV_Y - UV_EDGE}, {0.0f, +1.0f, 0.0f}},
     // Second triangle
-    {{+0.5f, +0.5f, +0.5f}, {UV_X - UV_EDGE, UV_Y - UV_EDGE}, {0.0f, +1.0f, 0.0f}},
-    {{+0.5f, +0.5f, -0.5f}, {0.0f + UV_EDGE, UV_Y - UV_EDGE}, {0.0f, +1.0f, 0.0f}},
-    {{-0.5f, +0.5f, -0.5f}, {0.0f + UV_EDGE, 0.0f + UV_EDGE}, {0.0f, +1.0f, 0.0f}},
+    {{.5 + +0.5f, .5 + +0.5f, .5 + +0.5f}, {UV_X - UV_EDGE, UV_Y - UV_EDGE}, {0.0f, +1.0f, 0.0f}},
+    {{.5 + +0.5f, .5 + +0.5f, .5 + -0.5f}, {0.0f + UV_EDGE, UV_Y - UV_EDGE}, {0.0f, +1.0f, 0.0f}},
+    {{.5 + -0.5f, .5 + +0.5f, .5 + -0.5f}, {0.0f + UV_EDGE, 0.0f + UV_EDGE}, {0.0f, +1.0f, 0.0f}},
 
     // Sixth face (MY)
     // First triangle
-    {{-0.5f, -0.5f, -0.5f}, {0.0f + UV_EDGE, UV_Y - UV_EDGE}, {0.0f, -1.0f, 0.0f}},
-    {{+0.5f, -0.5f, -0.5f}, {0.0f + UV_EDGE, 0.0f + UV_EDGE}, {0.0f, -1.0f, 0.0f}},
-    {{+0.5f, -0.5f, +0.5f}, {UV_X - UV_EDGE, 0.0f + UV_EDGE}, {0.0f, -1.0f, 0.0f}},
+    {{.5 + -0.5f, .5 + -0.5f, .5 + -0.5f}, {0.0f + UV_EDGE, UV_Y - UV_EDGE}, {0.0f, -1.0f, 0.0f}},
+    {{.5 + +0.5f, .5 + -0.5f, .5 + -0.5f}, {0.0f + UV_EDGE, 0.0f + UV_EDGE}, {0.0f, -1.0f, 0.0f}},
+    {{.5 + +0.5f, .5 + -0.5f, .5 + +0.5f}, {UV_X - UV_EDGE, 0.0f + UV_EDGE}, {0.0f, -1.0f, 0.0f}},
 
     // Second triangle
-    {{+0.5f, -0.5f, +0.5f}, {UV_X - UV_EDGE, 0.0f + UV_EDGE}, {0.0f, -1.0f, 0.0f}},
-    {{-0.5f, -0.5f, +0.5f}, {UV_X - UV_EDGE, UV_Y - UV_EDGE}, {0.0f, -1.0f, 0.0f}},
-    {{-0.5f, -0.5f, -0.5f}, {0.0f + UV_EDGE, UV_Y - UV_EDGE}, {0.0f, -1.0f, 0.0f}},
+    {{.5 + +0.5f, .5 + -0.5f, .5 + +0.5f}, {UV_X - UV_EDGE, 0.0f + UV_EDGE}, {0.0f, -1.0f, 0.0f}},
+    {{.5 + -0.5f, .5 + -0.5f, .5 + +0.5f}, {UV_X - UV_EDGE, UV_Y - UV_EDGE}, {0.0f, -1.0f, 0.0f}},
+    {{.5 + -0.5f, .5 + -0.5f, .5 + -0.5f}, {0.0f + UV_EDGE, UV_Y - UV_EDGE}, {0.0f, -1.0f, 0.0f}},
 };
 
 static bool loadTextureFromMem(C3D_Tex *tex, C3D_TexCube *cube, const void *data, size_t size) {
@@ -147,22 +147,13 @@ void meshBuild(Mesh *m, char *chunk) {
     for (int yy = 0; yy < CHUNK_HEIGHT; yy++) {
         for (int x = 0; x < WORLD_WIDTH; x++) {
             for (int z = 0; z < WORLD_WIDTH; z++) {
-                int b = chunk[W(x, yy, z)];
+                int b = chunk[W(x, yy, z)] & MASK_BLOCK;
                 if (b)
                     ADD_FACES(b - 1, 0, 0);
             }
         }
     }
     m->nSolidVertex = m->nVertex;
-    for (int yy = 0; yy < CHUNK_HEIGHT; yy++) {
-        for (int x = 0; x < WORLD_WIDTH; x++) {
-            for (int z = 0; z < WORLD_WIDTH; z++) {
-                ADD_FACES(2, 1, 1);
-            }
-        }
-    }
-
-    m->nDamageVertex = m->nVertex - m->nSolidVertex;
 }
 
 void meshUpdateSelected(Mesh *m, char *chunk, int selected, int x, int yy, int z) {
@@ -172,6 +163,24 @@ void meshUpdateSelected(Mesh *m, char *chunk, int selected, int x, int yy, int z
     }
 
     ADD_FACES(0, 1, 2);
+}
+
+void meshUpdateDamage(Mesh *m, char *chunk, int x, int yy, int z, int oldDamage, int damage) {
+    if (!damage) {
+        return;
+    }
+    if (oldDamage) {
+        for (int i = m->nSolidVertex; i < m->nSolidVertex + m->nDamageVertex; i++) {
+            if ((int)m->vertices[i].position[0] == x && (int)m->vertices[i].position[1] == yy && (int)m->vertices[i].position[2] == z) {
+                m->vertices[i].texcoord[0] += (damage - oldDamage) * UV_X;
+            }
+            i++;
+        }
+    } else {
+        m->nVertex = m->nSolidVertex + m->nDamageVertex;
+        ADD_FACES(1, damage, 1);
+        m->nDamageVertex = m->nVertex - m->nSolidVertex;
+    }
 }
 
 void renderInit(Game *g) {

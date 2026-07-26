@@ -21,6 +21,7 @@ typedef struct Game Game;
 
 void meshUpdateSelected(Mesh *m, char *chunk, int selected, int x, int yy, int z);
 void meshBuild(Mesh *m, char *chunk);
+void meshUpdateDamage(Mesh *m, char *chunk, int x, int yy, int z, int oldDamage, int damage);
 
 void renderInit(Game *g);
 void renderFrame(Game *g);
