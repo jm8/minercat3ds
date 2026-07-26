@@ -125,12 +125,12 @@ void meshInit(Mesh *m) {
     m->nVertex  = 0;
 }
 
-#define ADD_FACES(texX, texY, overlay) \
+#define ADD_FACES(texX, topTexX, texY, overlay) \
     { \
         if (yy == 0 || !chunk[W(x, yy - 1, z)]) \
             meshAddFace(m, FACE_MY, x, yy, z, (texX), (texY), overlay); \
         if (yy == CHUNK_HEIGHT - 1 || !chunk[W(x, yy + 1, z)]) \
-            meshAddFace(m, FACE_PY, x, yy, z, (texX), (texY), overlay); \
+            meshAddFace(m, FACE_PY, x, yy, z, (topTexX), (texY), overlay); \
         if (x == 0 || !chunk[W(x - 1, yy, z)]) \
             meshAddFace(m, FACE_MX, x, yy, z, (texX), (texY), overlay); \
         if (x == WORLD_WIDTH - 1 || !chunk[W(x + 1, yy, z)]) \
@@ -141,15 +141,27 @@ void meshInit(Mesh *m) {
             meshAddFace(m, FACE_PZ, x, yy, z, (texX), (texY), overlay); \
     }
 
+int blockIdOffset(int y) {
+    if (y == WORLD_HEIGHT - 1) {
+        return 1;
+    }
+    if (y > 8) {
+        return 2;
+    }
+    return 3;
+}
+
 void meshBuild(Mesh *m, char *chunk) {
     m->nVertex = 0;
 
     for (int yy = 0; yy < CHUNK_HEIGHT; yy++) {
+        int o    = blockIdOffset(yy);
+        int topO = (o == 1) ? 0 : o;
         for (int x = 0; x < WORLD_WIDTH; x++) {
             for (int z = 0; z < WORLD_WIDTH; z++) {
                 int b = chunk[W(x, yy, z)] & MASK_BLOCK;
                 if (b)
-                    ADD_FACES(b - 1, 0, 0);
+                    ADD_FACES(b + o - 1, b + topO - 1, 0, 0);
             }
         }
     }
@@ -162,7 +174,7 @@ void meshUpdateSelected(Mesh *m, char *chunk, int selected, int x, int yy, int z
         return;
     }
 
-    ADD_FACES(0, 1, 2);
+    ADD_FACES(0, 0, 1, 2);
 }
 
 void meshUpdateDamage(Mesh *m, char *chunk, int x, int yy, int z, int oldDamage, int damage) {
@@ -185,7 +197,7 @@ void meshUpdateDamage(Mesh *m, char *chunk, int x, int yy, int z, int oldDamage,
         }
     } else {
         m->nVertex = m->nSolidVertex + m->nDamageVertex;
-        ADD_FACES(1, damage, 1);
+        ADD_FACES(damage, damage, 1, 1);
         m->nDamageVertex = m->nVertex - m->nSolidVertex;
     }
 }
