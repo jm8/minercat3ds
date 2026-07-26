@@ -37,6 +37,6 @@ typedef struct Game {
     int selectedZ;
 } Game;
 
-#define W(x,y,z) ((y) * WORLD_WIDTH * WORLD_WIDTH + (x) * WORLD_WIDTH + (z) * WORLD_WIDTH)
+#define W(x,y,z) ((y) * WORLD_WIDTH * WORLD_WIDTH + (x) * WORLD_WIDTH + (z))
 
 

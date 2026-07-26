@@ -131,11 +131,11 @@ void meshInit(Mesh *m) {
             meshAddFace(m, FACE_MY, x, yy, z, (texX), (texY), overlay); \
         if (yy == CHUNK_HEIGHT - 1 || !chunk[W(x, yy + 1, z)]) \
             meshAddFace(m, FACE_PY, x, yy, z, (texX), (texY), overlay); \
-        if (x == 0 || !chunk[W(x - 1, x, z)]) \
+        if (x == 0 || !chunk[W(x - 1, yy, z)]) \
             meshAddFace(m, FACE_MX, x, yy, z, (texX), (texY), overlay); \
         if (x == WORLD_WIDTH - 1 || !chunk[W(x + 1, yy, z)]) \
             meshAddFace(m, FACE_PX, x, yy, z, (texX), (texY), overlay); \
-        if (z == 0 || !chunk[W(x, x, z - 1)]) \
+        if (z == 0 || !chunk[W(x, yy, z - 1)]) \
             meshAddFace(m, FACE_MZ, x, yy, z, (texX), (texY), overlay); \
         if (z == WORLD_WIDTH - 1 || !chunk[W(x, yy, z + 1)]) \
             meshAddFace(m, FACE_PZ, x, yy, z, (texX), (texY), overlay); \

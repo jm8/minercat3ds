@@ -136,7 +136,7 @@ int main() {
     for (int y = 0; y < NUM_CHUNKS * CHUNK_HEIGHT; y++) {
         for (int x = 0; x < WORLD_WIDTH; x++) {
             for (int z = 0; z < WORLD_WIDTH; z++) {
-                g.world[W(x, y, z)] = 1;
+                g.world[W(x, y, z)] = (y < 8) ? 4 : (y == 15) ? 2 : 3;
             }
         }
     }
