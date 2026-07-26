@@ -170,11 +170,18 @@ void meshUpdateDamage(Mesh *m, char *chunk, int x, int yy, int z, int oldDamage,
         return;
     }
     if (oldDamage) {
-        for (int i = m->nSolidVertex; i < m->nSolidVertex + m->nDamageVertex; i++) {
-            if ((int)m->vertices[i].position[0] == x && (int)m->vertices[i].position[1] == yy && (int)m->vertices[i].position[2] == z) {
-                m->vertices[i].texcoord[0] += (damage - oldDamage) * UV_X;
+        for (int i = m->nSolidVertex; i < m->nSolidVertex + m->nDamageVertex; i += 6) {
+            float avgX = (m->vertices[i].position[0] + m->vertices[i + 1].position[0] + m->vertices[i + 2].position[0]) / 3.0;
+            float avgY = (m->vertices[i].position[1] + m->vertices[i + 1].position[1] + m->vertices[i + 2].position[1]) / 3.0;
+            float avgZ = (m->vertices[i].position[2] + m->vertices[i + 1].position[2] + m->vertices[i + 2].position[2]) / 3.0;
+            float cX   = avgX - 0.5 * m->vertices[i].normal[0];
+            float cY   = avgY - 0.5 * m->vertices[i].normal[1];
+            float cZ   = avgZ - 0.5 * m->vertices[i].normal[2];
+            if ((int)cX == x && (int)cY == yy && (int)cZ == z) {
+                for (int j = 0; j < 6; j++) {
+                    m->vertices[i + j].texcoord[0] += UV_X;
+                }
             }
-            i++;
         }
     } else {
         m->nVertex = m->nSolidVertex + m->nDamageVertex;
