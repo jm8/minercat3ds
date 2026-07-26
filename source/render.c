@@ -125,9 +125,6 @@ void meshInit(Mesh *m) {
     m->nVertex  = 0;
 }
 
-void meshBuild(Mesh *m, char *chunk) {
-    m->nVertex = 0;
-
 #define ADD_FACES(texX, texY, overlay) \
     { \
         if (yy == 0 || !chunk[W(x, yy - 1, z)]) \
@@ -144,6 +141,9 @@ void meshBuild(Mesh *m, char *chunk) {
             meshAddFace(m, FACE_PZ, x, yy, z, (texX), (texY), overlay); \
     }
 
+void meshBuild(Mesh *m, char *chunk) {
+    m->nVertex = 0;
+
     for (int yy = 0; yy < CHUNK_HEIGHT; yy++) {
         for (int x = 0; x < WORLD_WIDTH; x++) {
             for (int z = 0; z < WORLD_WIDTH; z++) {
@@ -153,16 +153,25 @@ void meshBuild(Mesh *m, char *chunk) {
             }
         }
     }
+    m->nSolidVertex = m->nVertex;
     for (int yy = 0; yy < CHUNK_HEIGHT; yy++) {
         for (int x = 0; x < WORLD_WIDTH; x++) {
             for (int z = 0; z < WORLD_WIDTH; z++) {
-                int b = chunk[W(x, yy, z)];
                 ADD_FACES(2, 1, 1);
             }
         }
     }
 
-#undef ADD_FACES
+    m->nDamageVertex = m->nVertex - m->nSolidVertex;
+}
+
+void meshUpdateSelected(Mesh *m, char *chunk, int selected, int x, int yy, int z) {
+    m->nVertex = m->nSolidVertex + m->nDamageVertex;
+    if (!selected) {
+        return;
+    }
+
+    ADD_FACES(0, 1, 2);
 }
 
 void renderInit(Game *g) {

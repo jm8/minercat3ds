@@ -1,8 +1,11 @@
 #include <3ds.h>
 #include <citro3d.h>
+#include <stdbool.h>
 #include <tex3ds.h>
 
 #include "3ds/console.h"
+#include "c3d/maths.h"
+#include "c3d/types.h"
 #include "game.h"
 #include "render.h"
 
@@ -56,6 +59,56 @@ void cameraUpdate(Game *g) {
 
 static Game g;
 
+int getblock(Game *g, int x, int y, int z) {
+    if (x < 0 || x >= WORLD_WIDTH)
+        return 0;
+    if (z < 0 || z >= WORLD_WIDTH)
+        return 0;
+    if (y < 0 || y >= CHUNK_HEIGHT * NUM_CHUNKS)
+        return 0;
+
+    return g->world[W(x, y, z)];
+}
+
+void raycast(Game *g) {
+    float max_distance = 30;
+    float step         = 0.1;
+
+    C3D_FVec p = FVec3_New(g->camera.x, g->camera.y, g->camera.z);
+
+    float cp = cosf(g->camera.pitch);
+    float sp = sinf(g->camera.pitch);
+
+    float cy = cosf(-g->camera.yaw);
+    float sy = sinf(-g->camera.yaw);
+
+    float forwardX = sy * cp;
+    float forwardY = sp;
+    float forwardZ = -cy * cp;
+
+    C3D_FVec dp = FVec3_New(step * forwardX, step * forwardY, step * forwardZ);
+
+    float d = 0;
+
+    g->selected = false;
+    while (d < max_distance) {
+        d += step;
+        p = FVec3_Add(p, dp);
+
+        int x     = p.x;
+        int y     = p.y;
+        int z     = p.z;
+        int block = getblock(g, x, y, z);
+        if (block) {
+            g->selected  = true;
+            g->selectedX = x;
+            g->selectedY = y;
+            g->selectedZ = z;
+            break;
+        }
+    }
+}
+
 int main() {
     renderInit(&g);
     // g.camera.x     = 8.7;
@@ -69,8 +122,8 @@ int main() {
     g.camera.pitch = -1.749;
     g.camera.yaw   = -3.14;
 
-    g.world = linearAlloc(NUM_CHUKS * CHUNK_HEIGHT * WORLD_WIDTH * WORLD_WIDTH);
-    for (int y = 0; y < NUM_CHUKS * CHUNK_HEIGHT; y++) {
+    g.world = linearAlloc(NUM_CHUNKS * CHUNK_HEIGHT * WORLD_WIDTH * WORLD_WIDTH);
+    for (int y = 0; y < NUM_CHUNKS * CHUNK_HEIGHT; y++) {
         for (int x = 0; x < WORLD_WIDTH; x++) {
             for (int z = 0; z < WORLD_WIDTH; z++) {
                 g.world[W(x, y, z)] = 1;
@@ -79,7 +132,6 @@ int main() {
     }
     meshBuild(&g.mesh, g.world);
     consoleInit(GFX_BOTTOM, NULL);
-
     while (aptMainLoop()) {
         printf("\x1b[2J\x1b[H");
 
@@ -90,6 +142,11 @@ int main() {
             break;
 
         cameraUpdate(&g);
+
+        raycast(&g);
+        meshUpdateSelected(&g.mesh, g.world, g.selected, g.selectedX, g.selectedY, g.selectedZ);
+
+        printf("raycast (%d, %.1d, %.1d, %.1d)\n", g.selected, g.selectedX, g.selectedY, g.selectedZ);
         printf("Camera (%.1f, %.1f, %.1f)\n", g.camera.x, g.camera.y, g.camera.z);
 
         renderFrame(&g);
