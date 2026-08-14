@@ -2,6 +2,7 @@
 
 #include <3ds.h>
 #include <citro3d.h>
+#include "play.h"
 #include <stdbool.h>
 #include <tex3ds.h>
 
@@ -32,12 +33,11 @@ typedef struct Game {
 
     char *world;
 
-    bool selected;
-    int selectedX;
-    int selectedY;
-    int selectedZ;
+    bool hasSelected;
+    BlockCoords selected;
 } Game;
 
 #define W(x,y,z) ((y) * WORLD_WIDTH * WORLD_WIDTH + (x) * WORLD_WIDTH + (z))
 
 
+void raycast(Game *g);
