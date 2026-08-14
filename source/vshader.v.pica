@@ -81,6 +81,7 @@
 
 	; outclr = clamp r1 to [0,1]
 	min outclr, ones, r1
+	mov outclr, ones
 
 	; We're finished
 	end
