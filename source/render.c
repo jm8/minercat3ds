@@ -5,6 +5,8 @@
 
 #include "render.h"
 #include "3ds/allocator/linear.h"
+#include "c3d/framebuffer.h"
+#include "c3d/renderqueue.h"
 #include "game.h"
 #include "texture_t3x.h"
 #include "vshader_shbin.h"

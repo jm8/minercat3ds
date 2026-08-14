@@ -1,17 +1,19 @@
 #include "play.h"
 #include "game.h"
 #include "render.h"
+#include "controller.h"
+#include "debug.h"
 
 static Game g;
 
 void gameInit() {
     renderInit(&g);
 
-    g.camera.x     = 8.7;
-    g.camera.y     = 7.7;
-    g.camera.z     = -1.5;
-    g.camera.pitch = -1.749;
-    g.camera.yaw   = -3.14;
+    g.playerController.pos.x = 8.7;
+    g.playerController.pos.y = 37.7;
+    g.playerController.pos.z = 8.7;
+    g.playerController.pitch = -1;
+    g.playerController.yaw   = -3.14;
 
     g.world = linearAlloc(NUM_CHUNKS * CHUNK_HEIGHT * WORLD_WIDTH * WORLD_WIDTH);
     for (int y = 0; y < NUM_CHUNKS * CHUNK_HEIGHT; y++) {
@@ -23,12 +25,19 @@ void gameInit() {
     }
 
     meshBuild(&g.mesh, g.world);
-    consoleInit(GFX_BOTTOM, NULL);
+    debugInit();
 }
 
 void gameUpdate() {
+    playerController(&g.playerController);
+    g.camera.x     = g.playerController.pos.x;
+    g.camera.y     = g.playerController.pos.y;
+    g.camera.z     = g.playerController.pos.z;
+    g.camera.pitch = g.playerController.pitch;
+    g.camera.yaw   = g.playerController.yaw;
     raycast(&g);
     meshUpdateSelected(&g.mesh, g.world, g.hasSelected, g.selected.x, g.selected.y, g.selected.z);
+    debugPrints(&g);
 }
 
 void blockSetDamage(BlockCoords coords, int newDamage) {

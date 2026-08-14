@@ -2,6 +2,7 @@
 
 #include <3ds.h>
 #include <citro3d.h>
+#include "controller.h"
 #include "play.h"
 #include <stdbool.h>
 #include <tex3ds.h>
@@ -28,6 +29,7 @@ typedef struct Camera {
 typedef struct Game {
     Camera camera;
     Mesh mesh;
+    PlayerController playerController;
 
     C3D_RenderTarget *target;
 
@@ -37,7 +39,6 @@ typedef struct Game {
     BlockCoords selected;
 } Game;
 
-#define W(x,y,z) ((y) * WORLD_WIDTH * WORLD_WIDTH + (x) * WORLD_WIDTH + (z))
-
+#define W(x, y, z) ((y) * WORLD_WIDTH * WORLD_WIDTH + (x) * WORLD_WIDTH + (z))
 
 void raycast(Game *g);
