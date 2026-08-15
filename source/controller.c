@@ -1,4 +1,5 @@
 #include <3ds.h>
+#include <math.h>
 #include "3ds/services/hid.h"
 #include "c3d/maths.h"
 #include "c3d/types.h"
@@ -41,7 +42,11 @@ void playerController(PlayerController *p) {
     circlePosition circle;
     circleRead(&circle);
     float moveX = circle.dx / 156.0f;
+    if (fabsf(moveX) < 0.1)
+        moveX = 0;
     float moveY = circle.dy / 156.0f;
+    if (fabsf(moveY) < 0.1)
+        moveY = 0;
 
     float cp = cosf(p->pitch);
     float sp = sinf(p->pitch);
