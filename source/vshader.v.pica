@@ -80,7 +80,7 @@
 	mad r1, r2, mat_amb, r1
 
 	; outclr = clamp r1 to [0,1]
-	min outclr, ones, r1
+	; min outclr, ones, r1
 	mov outclr, ones
 
 	; We're finished
