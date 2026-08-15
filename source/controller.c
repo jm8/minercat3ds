@@ -34,6 +34,33 @@ bool moveAxis(PlayerController *p, C3D_FVec vel) {
 }
 
 void playerController(PlayerController *p) {
+    float speed = 0.12;
+
+    u32 down = hidKeysDown();
+    u32 held = hidKeysHeld();
+    circlePosition circle;
+    circleRead(&circle);
+    float moveX = circle.dx / 156.0f;
+    float moveY = circle.dy / 156.0f;
+
+    float cp = cosf(p->pitch);
+    float sp = sinf(p->pitch);
+
+    float cy = cosf(-p->yaw);
+    float sy = sinf(-p->yaw);
+
+    // float forwardX = sy * cp;
+    // float forwardY = sp;
+    // float forwardZ = -cy * cp;
+    float forwardX = sy;
+    float forwardZ = cp;
+
+    float rightX = cy;
+    float rightZ = sy;
+
+    p->vel.x = forwardX * speed * moveY + rightX * speed * moveX;
+    p->vel.z = forwardZ * speed * moveY + rightZ * speed * moveX;
+
     p->vel.y -= GRAVITY;
     if (p->vel.y < -TERMINAL_VELOCITY)
         p->vel.y = -TERMINAL_VELOCITY;
@@ -45,8 +72,9 @@ void playerController(PlayerController *p) {
         p->isOnGround = false;
     }
 
-    u32 down = hidKeysDown();
-    u32 held = hidKeysHeld();
+    moveAxis(p, FVec3_New(p->vel.x, 0, 0));
+    moveAxis(p, FVec3_New(0, 0, p->vel.z));
+
     if ((held & KEY_A) && p->isOnGround) {
         p->vel.y = JUMP_VEL;
     }
