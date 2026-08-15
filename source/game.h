@@ -16,9 +16,8 @@
 #define WORLD_HEIGHT (NUM_CHUNKS * CHUNK_HEIGHT)
 #define WORLD_SIZE (WORLD_WIDTH * WORLD_WIDTH * CHUNK_HEIGHT * NUM_CHUNKS)
 
-#define MASK_BLOCK 0x7
-#define MASK_DAMAGE 0x1f8
-#define SHIFT_DAMAGE 3
+#define MASK_BLOCK 0x3f
+#define SHIFT_DAMAGE 6
 
 typedef struct Camera {
     float x, y, z;
@@ -33,7 +32,7 @@ typedef struct Game {
 
     C3D_RenderTarget *target;
 
-    char *world;
+    u32 *world;
 
     bool hasSelected;
     BlockCoords selected;

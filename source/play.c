@@ -1,4 +1,5 @@
 #include "play.h"
+#include "world.h"
 #include "game.h"
 #include "render.h"
 #include "controller.h"
@@ -15,7 +16,9 @@ void gameInit() {
     g.playerController.pitch = -1;
     g.playerController.yaw   = -3.14;
 
-    g.world = linearAlloc(NUM_CHUNKS * CHUNK_HEIGHT * WORLD_WIDTH * WORLD_WIDTH);
+    g.hasSelected = false;
+
+    g.world = linearAlloc(NUM_CHUNKS * CHUNK_HEIGHT * WORLD_WIDTH * WORLD_WIDTH * 4);
     for (int y = 0; y < NUM_CHUNKS * CHUNK_HEIGHT; y++) {
         for (int x = 0; x < WORLD_WIDTH; x++) {
             for (int z = 0; z < WORLD_WIDTH; z++) {
@@ -37,19 +40,29 @@ void gameUpdate() {
     g.camera.yaw   = g.playerController.yaw;
     raycast(&g);
     meshUpdateSelected(&g.mesh, g.world, g.hasSelected, g.selected.x, g.selected.y, g.selected.z);
-    debugPrints(&g);
+}
+
+int visibleDamage(u32 block) {
+    if (!block) {
+        return 0;
+    }
+    int id     = block & MASK_BLOCK;
+    int damage = block >> SHIFT_DAMAGE;
+    int health = blockTypeHealth[id];
+    return (10.0f * damage / health);
 }
 
 void blockSetDamage(BlockCoords coords, int newDamage) {
     int i = W(coords.x, coords.y, coords.z);
 
-    int oldDamage = (g.world[i] & MASK_DAMAGE) >> SHIFT_DAMAGE;
-    if (newDamage > 10) {
+    int oldVisibleDamage = visibleDamage(g.world[i]);
+    g.world[i]           = (g.world[i] & MASK_BLOCK) | (newDamage << SHIFT_DAMAGE);
+    int newVisibleDamage = visibleDamage(g.world[i]);
+    if (newVisibleDamage > 10) {
         g.world[i] = 0;
         meshBuild(&g.mesh, g.world);
     } else {
-        g.world[i] = (g.world[i] & MASK_BLOCK) | (newDamage << SHIFT_DAMAGE);
-        meshUpdateDamage(&g.mesh, g.world, coords.x, coords.y, coords.z, oldDamage, newDamage);
+        meshUpdateDamage(&g.mesh, g.world, coords.x, coords.y, coords.z, oldVisibleDamage, newVisibleDamage);
     }
 }
 
@@ -67,9 +80,10 @@ Block blockGet(BlockCoords coords) {
     if (y < 0 || y >= CHUNK_HEIGHT * NUM_CHUNKS)
         return block;
 
-    int data     = g.world[W(x, y, z)];
-    block.id     = (data & MASK_BLOCK);
-    block.damage = (data & MASK_DAMAGE) >> SHIFT_DAMAGE;
+    int data         = g.world[W(x, y, z)];
+    block.id         = (data & MASK_BLOCK);
+    block.durability = 200;
+    block.damage     = data >> SHIFT_DAMAGE;
     return block;
 }
 
@@ -82,33 +96,9 @@ bool selectedGet(BlockCoords *outCoords) {
 
 void gameRender() {
     renderFrame(&g);
+    debugPrints(&g);
 }
 
 void gameExit() {
     renderExit(&g);
-}
-void cameraRotate(float right, float up) {
-    g.camera.pitch += up;
-    g.camera.yaw += right;
-}
-
-void cameraMove(float forward, float up, float strafe) {
-    float cp = cosf(g.camera.pitch);
-    float sp = sinf(g.camera.pitch);
-
-    float cy = cosf(-g.camera.yaw);
-    float sy = sinf(-g.camera.yaw);
-
-    float forwardX = sy * cp;
-    float forwardY = sp;
-    float forwardZ = -cy * cp;
-
-    float rightX = cy;
-    float rightZ = sy;
-
-    g.camera.x += (forwardX * forward + rightX * strafe);
-    g.camera.y += (forwardY * forward);
-    g.camera.z += (forwardZ * forward + rightZ * strafe);
-
-    g.camera.y += up;
 }

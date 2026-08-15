@@ -1,12 +1,11 @@
-#include "3ds/services/cdcchk.h"
-#include "3ds/services/hid.h"
+#include <3ds.h>
 #include "c3d/maths.h"
 #include "c3d/types.h"
 #include "controller.h"
-#include "game.h"
+#include "play.h"
 
 #define GRAVITY 0.008
-#define TERMINAL_VELOCITY 2
+#define TERMINAL_VELOCITY 0.8
 #define JUMP_VEL 0.2
 
 #define NUM_CORNERS 1
@@ -53,7 +52,7 @@ void playerController(PlayerController *p) {
     // float forwardY = sp;
     // float forwardZ = -cy * cp;
     float forwardX = sy;
-    float forwardZ = cp;
+    float forwardZ = -cy;
 
     float rightX = cy;
     float rightZ = sy;
@@ -77,5 +76,30 @@ void playerController(PlayerController *p) {
 
     if ((held & KEY_A) && p->isOnGround) {
         p->vel.y = JUMP_VEL;
+    }
+
+    float turnSpeed = 0.06;
+    if ((held & KEY_DUP)) {
+        p->pitch += turnSpeed;
+    }
+    if ((held & KEY_DDOWN)) {
+        p->pitch -= turnSpeed;
+    }
+    if ((held & KEY_DRIGHT)) {
+        p->yaw -= turnSpeed;
+    }
+    if ((held & KEY_DLEFT)) {
+        p->yaw += turnSpeed;
+    }
+    if (p->pitch < -1.55) {
+        p->pitch = -1.55;
+    }
+    if (p->pitch > 1.55) {
+        p->pitch = 1.55;
+    }
+
+    BlockCoords selected;
+    if ((held & KEY_B) && selectedGet(&selected)) {
+        blockSetDamage(selected, blockGet(selected).damage + 1);
     }
 }

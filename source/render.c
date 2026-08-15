@@ -8,6 +8,7 @@
 #include "c3d/framebuffer.h"
 #include "c3d/renderqueue.h"
 #include "game.h"
+#include "play.h"
 #include "texture_t3x.h"
 #include "vshader_shbin.h"
 
@@ -153,7 +154,7 @@ int blockIdOffset(int y) {
     return 3;
 }
 
-void meshBuild(Mesh *m, char *chunk) {
+void meshBuild(Mesh *m, u32 *chunk) {
     m->nVertex = 0;
 
     for (int yy = 0; yy < CHUNK_HEIGHT; yy++) {
@@ -174,7 +175,7 @@ void meshBuild(Mesh *m, char *chunk) {
         int topO = (o == 1) ? 0 : o;
         for (int x = 0; x < WORLD_WIDTH; x++) {
             for (int z = 0; z < WORLD_WIDTH; z++) {
-                int damage = (chunk[W(x, yy, z)] & MASK_DAMAGE) >> SHIFT_DAMAGE;
+                int damage = visibleDamage(chunk[W(x, yy, z)]);
                 if (damage) {
                     ADD_FACES(damage, damage, 1, 1);
                 }
@@ -184,7 +185,7 @@ void meshBuild(Mesh *m, char *chunk) {
     m->nDamageVertex = m->nVertex - m->nSolidVertex;
 }
 
-void meshUpdateSelected(Mesh *m, char *chunk, int selected, int x, int yy, int z) {
+void meshUpdateSelected(Mesh *m, u32 *chunk, int selected, int x, int yy, int z) {
     m->nVertex = m->nSolidVertex + m->nDamageVertex;
     if (!selected) {
         return;
@@ -193,10 +194,13 @@ void meshUpdateSelected(Mesh *m, char *chunk, int selected, int x, int yy, int z
     ADD_FACES(0, 0, 1, 2);
 }
 
-void meshUpdateDamage(Mesh *m, char *chunk, int x, int yy, int z, int oldDamage, int damage) {
+void meshUpdateDamage(Mesh *m, u32 *chunk, int x, int yy, int z, int oldDamage, int damage) {
     if (!damage) {
         return;
     }
+    if (oldDamage >= damage)
+        return;
+    int difference = damage - oldDamage;
     if (oldDamage) {
         for (int i = m->nSolidVertex; i < m->nSolidVertex + m->nDamageVertex; i += 6) {
             float avgX = (m->vertices[i].position[0] + m->vertices[i + 1].position[0] + m->vertices[i + 2].position[0]) / 3.0;
@@ -207,7 +211,7 @@ void meshUpdateDamage(Mesh *m, char *chunk, int x, int yy, int z, int oldDamage,
             float cZ   = avgZ - 0.5 * m->vertices[i].normal[2];
             if ((int)cX == x && (int)cY == yy && (int)cZ == z) {
                 for (int j = 0; j < 6; j++) {
-                    m->vertices[i + j].texcoord[0] += UV_X;
+                    m->vertices[i + j].texcoord[0] += UV_X * difference;
                 }
             }
         }
