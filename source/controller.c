@@ -1,4 +1,5 @@
 #include <3ds.h>
+#include "3ds/services/hid.h"
 #include "c3d/maths.h"
 #include "c3d/types.h"
 #include "controller.h"
@@ -91,6 +92,22 @@ void playerController(PlayerController *p) {
     if ((held & KEY_DLEFT)) {
         p->yaw += turnSpeed;
     }
+
+    touchPosition touchPos;
+    hidTouchRead(&touchPos);
+
+    float touchSpeed = 6.28f / 320;
+    if ((down & KEY_TOUCH)) {
+        p->touchStart      = touchPos;
+        p->touchStartPitch = p->pitch;
+        p->touchStartYaw   = p->yaw;
+    } else if ((held & KEY_TOUCH)) {
+        float targetPitch = p->touchStartPitch - touchSpeed * (touchPos.py - p->touchStart.py);
+        float targetYaw   = p->touchStartYaw - touchSpeed * (touchPos.px - p->touchStart.px);
+        p->pitch          = (p->pitch + targetPitch) / 2.0;
+        p->yaw            = (p->yaw + targetYaw) / 2.0;
+    }
+
     if (p->pitch < -1.55) {
         p->pitch = -1.55;
     }
