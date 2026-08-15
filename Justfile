@@ -18,6 +18,11 @@ emulate:
     just b
     azahar minercat3ds.3dsx
 
+install:
+    just b
+    # make the directory manually first
+    curl -T minercat3ds.3dsx ftp://192.168.1.111:5000/3ds/minercat3ds/minercat3ds.3dsx
+
 alias b := build
 alias c := clean
 alias e := emulate
