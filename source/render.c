@@ -224,10 +224,13 @@ void meshUpdateDamage(Mesh *m, u32 *chunk, int x, int yy, int z, int oldDamage, 
 
 void renderInit(Game *g) {
     gfxInitDefault();
+    gfxSet3D(true);
     C3D_Init(C3D_DEFAULT_CMDBUF_SIZE);
 
-    g->target = C3D_RenderTargetCreate(240, 400, GPU_RB_RGBA8, GPU_RB_DEPTH24_STENCIL8);
-    C3D_RenderTargetSetOutput(g->target, GFX_TOP, GFX_LEFT, DISPLAY_TRANSFER_FLAGS);
+    g->leftTarget = C3D_RenderTargetCreate(240, 400, GPU_RB_RGBA8, GPU_RB_DEPTH24_STENCIL8);
+    C3D_RenderTargetSetOutput(g->leftTarget, GFX_TOP, GFX_LEFT, DISPLAY_TRANSFER_FLAGS);
+    g->rightTarget = C3D_RenderTargetCreate(240, 400, GPU_RB_RGBA8, GPU_RB_DEPTH24_STENCIL8);
+    C3D_RenderTargetSetOutput(g->rightTarget, GFX_TOP, GFX_RIGHT, DISPLAY_TRANSFER_FLAGS);
 
     // Load the vertex shader, create a shader program and bind it
     vshader_dvlb = DVLB_ParseFile((u32 *)vshader_shbin, vshader_shbin_size);
@@ -249,9 +252,6 @@ void renderInit(Game *g) {
     AttrInfo_AddLoader(attrInfo, 0, GPU_FLOAT, 3); // v0=position
     AttrInfo_AddLoader(attrInfo, 1, GPU_FLOAT, 2); // v1=texcoord
     AttrInfo_AddLoader(attrInfo, 2, GPU_FLOAT, 3); // v2=normal
-
-    // Compute the projection matrix
-    Mtx_PerspTilt(&projection, C3D_AngleFromDegrees(80.0f), C3D_AspectRatioTop, 0.01f, 1000.0f, false);
 
     meshInit(&g->mesh);
 
@@ -275,10 +275,11 @@ void renderInit(Game *g) {
     C3D_TexEnvFunc(env, C3D_Both, GPU_MODULATE);
 }
 
-void renderFrame(Game *g) {
-    C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
-    C3D_RenderTargetClear(g->target, C3D_CLEAR_ALL, CLEAR_COLOR, 0);
-    C3D_FrameDrawOn(g->target);
+void renderScreen(Game *g, C3D_RenderTarget *target, float iod) {
+    Mtx_PerspStereoTilt(&projection, C3D_AngleFromDegrees(80.0f), C3D_AspectRatioTop, 0.01f, 1000.0f, iod, 2.0f, false);
+
+    C3D_RenderTargetClear(target, C3D_CLEAR_ALL, CLEAR_COLOR, 0);
+    C3D_FrameDrawOn(target);
 
     C3D_Mtx modelView;
 
@@ -297,7 +298,16 @@ void renderFrame(Game *g) {
 
     // Draw the VBO
     C3D_DrawArrays(GPU_TRIANGLES, 0, g->mesh.nVertex);
+}
 
+void renderFrame(Game *g) {
+    float slider = osGet3DSliderState();
+    float iod    = slider / 3;
+    C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
+    renderScreen(g, g->leftTarget, -iod);
+    if (iod > 0.0f) {
+        renderScreen(g, g->rightTarget, iod);
+    }
     C3D_FrameEnd(0);
 }
 

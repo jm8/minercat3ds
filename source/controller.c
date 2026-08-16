@@ -13,6 +13,8 @@
 #define NUM_CORNERS 1
 static float corners[NUM_CORNERS][3] = {{0, -1.8, 0}};
 
+bool fly = false;
+
 bool isColliding(PlayerController *p) {
     for (int i = 0; i < NUM_CORNERS; i++) {
         if (blockGet((BlockCoords){p->pos.x + corners[i][0], p->pos.y + corners[i][1], p->pos.z + corners[i][2]}).id)
@@ -66,9 +68,21 @@ void playerController(PlayerController *p) {
     p->vel.x = forwardX * speed * moveY + rightX * speed * moveX;
     p->vel.z = forwardZ * speed * moveY + rightZ * speed * moveX;
 
-    p->vel.y -= GRAVITY;
-    if (p->vel.y < -TERMINAL_VELOCITY)
-        p->vel.y = -TERMINAL_VELOCITY;
+    if (fly) {
+        p->vel.y = 0;
+        if (held & KEY_L) {
+            p->vel.y = -speed;
+        }
+        if (held & KEY_R) {
+            p->vel.y = speed;
+        }
+    }
+
+    if (!fly) {
+        p->vel.y -= GRAVITY;
+        if (p->vel.y < -TERMINAL_VELOCITY)
+            p->vel.y = -TERMINAL_VELOCITY;
+    }
 
     if (moveAxis(p, FVec3_New(0, p->vel.y, 0))) {
         p->isOnGround = (p->vel.y < 0);
@@ -80,7 +94,7 @@ void playerController(PlayerController *p) {
     moveAxis(p, FVec3_New(p->vel.x, 0, 0));
     moveAxis(p, FVec3_New(0, 0, p->vel.z));
 
-    if ((held & KEY_A) && p->isOnGround) {
+    if (!fly && (held & (KEY_A | KEY_L)) && p->isOnGround) {
         p->vel.y = JUMP_VEL;
     }
 
@@ -121,7 +135,7 @@ void playerController(PlayerController *p) {
     }
 
     BlockCoords selected;
-    if ((held & KEY_B) && selectedGet(&selected)) {
+    if ((held & (KEY_B | KEY_TOUCH)) && selectedGet(&selected)) {
         blockSetDamage(selected, blockGet(selected).damage + 1);
     }
 }

@@ -1,5 +1,6 @@
 #pragma once
 #include "3ds/types.h"
+#include "c3d/renderqueue.h"
 
 typedef struct {
     float position[3];

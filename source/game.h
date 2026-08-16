@@ -30,7 +30,8 @@ typedef struct Game {
     Mesh mesh;
     PlayerController playerController;
 
-    C3D_RenderTarget *target;
+    C3D_RenderTarget *leftTarget;
+    C3D_RenderTarget *rightTarget;
 
     u32 *world;
 
