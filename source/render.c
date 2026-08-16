@@ -128,10 +128,10 @@ void meshInit(Mesh *m) {
     m->nVertex  = 0;
 }
 
-#define ADD_FACES(texX, topTexX, texY, overlay) \
+#define ADD_FACES(texX, topTexX, bottomTexX, texY, overlay) \
     { \
         if (yy == 0 || !chunk[W(x, yy - 1, z)]) \
-            meshAddFace(m, FACE_MY, x, yy, z, (texX), (texY), overlay); \
+            meshAddFace(m, FACE_MY, x, yy, z, (bottomTexX), (texY), overlay); \
         if (yy == CHUNK_HEIGHT - 1 || !chunk[W(x, yy + 1, z)]) \
             meshAddFace(m, FACE_PY, x, yy, z, (topTexX), (texY), overlay); \
         if (x == 0 || !chunk[W(x - 1, yy, z)]) \
@@ -158,13 +158,14 @@ void meshBuild(Mesh *m, u32 *chunk) {
     m->nVertex = 0;
 
     for (int yy = 0; yy < CHUNK_HEIGHT; yy++) {
-        int o    = blockIdOffset(yy);
-        int topO = (o == 1) ? 0 : o;
+        int o       = blockIdOffset(yy);
+        int topO    = (o == 1) ? 0 : o;
+        int bottomO = (o == 1) ? 2 : o;
         for (int x = 0; x < WORLD_WIDTH; x++) {
             for (int z = 0; z < WORLD_WIDTH; z++) {
                 int b = chunk[W(x, yy, z)] & MASK_BLOCK;
                 if (b)
-                    ADD_FACES(b + o - 1, b + topO - 1, 0, 0);
+                    ADD_FACES(b + o - 1, b + topO - 1, b + bottomO - 1, 0, 0);
             }
         }
     }
@@ -177,7 +178,7 @@ void meshBuild(Mesh *m, u32 *chunk) {
             for (int z = 0; z < WORLD_WIDTH; z++) {
                 int damage = visibleDamage(chunk[W(x, yy, z)]);
                 if (damage) {
-                    ADD_FACES(damage, damage, 1, 1);
+                    ADD_FACES(damage, damage, damage, 1, 1);
                 }
             }
         }
@@ -191,7 +192,7 @@ void meshUpdateSelected(Mesh *m, u32 *chunk, int selected, int x, int yy, int z)
         return;
     }
 
-    ADD_FACES(0, 0, 1, 2);
+    ADD_FACES(0, 0, 0, 1, 2);
 }
 
 void meshUpdateDamage(Mesh *m, u32 *chunk, int x, int yy, int z, int oldDamage, int damage) {
@@ -217,7 +218,7 @@ void meshUpdateDamage(Mesh *m, u32 *chunk, int x, int yy, int z, int oldDamage, 
         }
     } else {
         m->nVertex = m->nSolidVertex + m->nDamageVertex;
-        ADD_FACES(damage, damage, 1, 1);
+        ADD_FACES(damage, damage, damage, 1, 1);
         m->nDamageVertex = m->nVertex - m->nSolidVertex;
     }
 }
