@@ -12,7 +12,7 @@
 
 #define NUM_CORNERS 12
 #define EYE_HEIGHT 1.8f
-#define PLAYER_WIDTH 0.1875f
+#define PLAYER_WIDTH 0.3f
 static float corners[NUM_CORNERS][3] = {
     {-PLAYER_WIDTH, -EYE_HEIGHT, -PLAYER_WIDTH},
     {-PLAYER_WIDTH, -EYE_HEIGHT, PLAYER_WIDTH},

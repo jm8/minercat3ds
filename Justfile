@@ -23,6 +23,7 @@ install:
     # make the directory manually first
     curl -T minercat3ds.3dsx ftp://192.168.1.111:5000/3ds/minercat3ds/minercat3ds.3dsx
 
+alias i := install
 alias b := build
 alias c := clean
 alias e := emulate
