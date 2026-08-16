@@ -28,15 +28,15 @@ static float corners[NUM_CORNERS][3] = {
     {PLAYER_WIDTH, (0 - EYE_HEIGHT) / 2, PLAYER_WIDTH},
 };
 
-bool fly    = true;
-bool noclip = true;
-bool fast   = true;
+bool fly    = false;
+bool noclip = false;
+bool fast   = false;
 
 bool isColliding(PlayerController *p) {
     if (noclip)
         return false;
     for (int i = 0; i < NUM_CORNERS; i++) {
-        if (blockGet((BlockCoords){p->pos.x + corners[i][0], p->pos.y + corners[i][1], p->pos.z + corners[i][2]}, 1).id)
+        if (blockGet((BlockCoords){floorf(p->pos.x + corners[i][0]), floorf(p->pos.y + corners[i][1]), floorf(p->pos.z + corners[i][2])}, 1).id)
             return true;
     }
     return false;

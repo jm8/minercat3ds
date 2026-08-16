@@ -77,8 +77,12 @@ Block blockGet(BlockCoords coords, int def) {
         return block;
     if (z < 0 || z >= WORLD_WIDTH)
         return block;
-    if (y < 0 || y >= CHUNK_HEIGHT * NUM_CHUNKS)
+    if (y < 0 || y >= CHUNK_HEIGHT * NUM_CHUNKS) {
+        if (y >= CHUNK_HEIGHT * NUM_CHUNKS) {
+            block.id = 0;
+        }
         return block;
+    }
 
     int data         = g.world[W(x, y, z)];
     block.id         = (data & MASK_BLOCK);

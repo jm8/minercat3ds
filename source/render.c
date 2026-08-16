@@ -282,7 +282,7 @@ void renderInit(Game *g) {
 }
 
 void renderScreen(Game *g, C3D_RenderTarget *target, float iod) {
-    Mtx_PerspStereoTilt(&projection, C3D_AngleFromDegrees(80.0f), C3D_AspectRatioTop, 0.01f, 1000.0f, iod, 2.0f, false);
+    Mtx_PerspStereoTilt(&projection, C3D_AngleFromDegrees(85.0f), C3D_AspectRatioTop, 0.01f, 1000.0f, iod, 2.0f, false);
 
     C3D_RenderTargetClear(target, C3D_CLEAR_ALL, CLEAR_COLOR, 0);
     C3D_FrameDrawOn(target);
