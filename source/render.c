@@ -17,11 +17,14 @@
 #define DISPLAY_TRANSFER_FLAGS (GX_TRANSFER_FLIP_VERT(0) | GX_TRANSFER_OUT_TILED(0) | GX_TRANSFER_RAW_COPY(0) | GX_TRANSFER_IN_FORMAT(GX_TRANSFER_FMT_RGBA8) | GX_TRANSFER_OUT_FORMAT(GX_TRANSFER_FMT_RGB8) | GX_TRANSFER_SCALING(GX_TRANSFER_SCALE_NO))
 
 #define UV_X (1.0f / 64.0f)
-#define UV_Y (1.0f / 4.0f)
+#define UV_Y (1.0f / 16.0f)
+#define TEXTURE_HEIGHT 12
 #define UV_EDGE 0
 
-#define MAX_FACE_COUNT (WORLD_WIDTH * WORLD_WIDTH * CHUNK_HEIGHT * 6 / 2)
-#define MAX_VERTEX_COUNT (6 * MAX_FACE_COUNT)
+#define CHUNK_MAX_FACE_COUNT (WORLD_WIDTH * WORLD_WIDTH * CHUNK_HEIGHT * 6 / 2)
+#define CHUNK_MAX_VERTEX_COUNT (6 * CHUNK_MAX_FACE_COUNT)
+#define MAX_VISIBLE_CHUNKS 8
+#define CAT_VERTEX_COUNT 3
 
 static DVLB_s *vshader_dvlb;
 static shaderProgram_s program;
@@ -35,6 +38,7 @@ static C3D_Mtx material = {{
     {{1.0f, 0.0f, 0.0f, 0.0f}}, // Emission
 }};
 static C3D_Tex texture_tex;
+C3D_Tex cat_tex;
 
 static const vertex cube_faces[] = {
     // First face (PZ)
@@ -117,14 +121,14 @@ void meshAddFace(Mesh *m, int face, int x, int y, int z, int texX, int texY, int
         m->vertices[m->nVertex + i].position[0] += x + OVERLAY_OFFSET * overlay * m->vertices[m->nVertex + i].normal[0];
         m->vertices[m->nVertex + i].position[1] += y + OVERLAY_OFFSET * overlay * m->vertices[m->nVertex + i].normal[1];
         m->vertices[m->nVertex + i].position[2] += z + OVERLAY_OFFSET * overlay * m->vertices[m->nVertex + i].normal[2];
-        m->vertices[m->nVertex + i].texcoord[1] += (3 - texY) * UV_Y;
+        m->vertices[m->nVertex + i].texcoord[1] += (TEXTURE_HEIGHT - texY) * UV_Y;
         m->vertices[m->nVertex + i].texcoord[0] += texX * UV_X;
     }
     m->nVertex += 6;
 }
 
 void meshInit(Mesh *m) {
-    m->vertices = linearAlloc(MAX_VERTEX_COUNT * sizeof(vertex));
+    m->vertices = linearAlloc((CHUNK_MAX_VERTEX_COUNT) * sizeof(vertex));
     m->nVertex  = 0;
 }
 
@@ -261,11 +265,10 @@ void renderInit(Game *g) {
     BufInfo_Init(bufInfo);
     BufInfo_Add(bufInfo, g->mesh.vertices, sizeof(vertex), 3, 0x210);
 
-    // Load the texture and bind it to the first texture unit
     if (!loadTextureFromMem(&texture_tex, NULL, texture_t3x, texture_t3x_size))
         svcBreak(USERBREAK_PANIC);
-    C3D_TexSetFilter(&texture_tex, GPU_NEAREST, GPU_NEAREST);
     C3D_TexBind(0, &texture_tex);
+    C3D_TexSetFilter(&texture_tex, GPU_NEAREST, GPU_NEAREST);
 
     // Configure the first fragment shading substage to blend the texture color with
     // the vertex color (calculated by the vertex shader using a lighting algorithm)
@@ -299,6 +302,8 @@ void renderScreen(Game *g, C3D_RenderTarget *target, float iod) {
 
     // Draw the VBO
     C3D_DrawArrays(GPU_TRIANGLES, 0, g->mesh.nVertex);
+
+    // C3D_DrawArrays(GPU_TRIANGLES, MAX_VISIBLE_CHUNKS * CHUNK_MAX_VERTEX_COUNT, CAT_VERTEX_COUNT);
 }
 
 void renderFrame(Game *g) {
@@ -315,6 +320,7 @@ void renderFrame(Game *g) {
 void renderExit(Game *g) {
     // Free the texture
     C3D_TexDelete(&texture_tex);
+    C3D_TexDelete(&cat_tex);
 
     // Free the VBO
     linearFree(g->mesh.vertices);

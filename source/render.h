@@ -1,6 +1,6 @@
 #pragma once
-#include "3ds/types.h"
-#include "c3d/renderqueue.h"
+#include <3ds.h>
+#include "c3d/texture.h"
 
 typedef struct {
     float position[3];
@@ -28,3 +28,8 @@ void meshUpdateDamage(Mesh *m, u32 *chunk, int x, int yy, int z, int oldDamage, 
 void renderInit(Game *g);
 void renderFrame(Game *g);
 void renderExit(Game *g);
+
+extern C3D_Tex cat_tex;
+extern vertex cat_vertices[3];
+extern int uLoc_projection, uLoc_modelView;
+extern int uLoc_lightVec, uLoc_lightHalfVec, uLoc_lightClr, uLoc_material;
