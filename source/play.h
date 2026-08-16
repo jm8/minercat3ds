@@ -21,6 +21,6 @@ void gameRender();
 void gameExit();
 
 void blockSetDamage(BlockCoords coords, int damage);
-Block blockGet(BlockCoords coords);
+Block blockGet(BlockCoords coords, int def);
 bool selectedGet(BlockCoords *outCoords);
 int visibleDamage(u32 block);

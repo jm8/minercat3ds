@@ -27,7 +27,7 @@ void raycast(Game *g) {
         p = FVec3_Add(p, dp);
 
         BlockCoords b = {p.x, p.y, p.z};
-        int block     = blockGet(b).id;
+        int block     = blockGet(b, 0).id;
         if (block) {
             g->hasSelected = true;
             g->selected    = b;

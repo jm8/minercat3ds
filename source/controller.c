@@ -28,11 +28,15 @@ static float corners[NUM_CORNERS][3] = {
     {PLAYER_WIDTH, (0 - EYE_HEIGHT) / 2, PLAYER_WIDTH},
 };
 
-bool fly = false;
+bool fly    = true;
+bool noclip = true;
+bool fast   = true;
 
 bool isColliding(PlayerController *p) {
+    if (noclip)
+        return false;
     for (int i = 0; i < NUM_CORNERS; i++) {
-        if (blockGet((BlockCoords){p->pos.x + corners[i][0], p->pos.y + corners[i][1], p->pos.z + corners[i][2]}).id)
+        if (blockGet((BlockCoords){p->pos.x + corners[i][0], p->pos.y + corners[i][1], p->pos.z + corners[i][2]}, 1).id)
             return true;
     }
     return false;
@@ -52,7 +56,7 @@ bool moveAxis(PlayerController *p, C3D_FVec vel) {
 }
 
 void playerController(PlayerController *p) {
-    float speed = 0.12;
+    float speed = fast ? 0.5 : 0.12;
 
     u32 down = hidKeysDown();
     u32 held = hidKeysHeld();
@@ -151,6 +155,6 @@ void playerController(PlayerController *p) {
 
     BlockCoords selected;
     if ((held & (KEY_B | KEY_TOUCH)) && selectedGet(&selected)) {
-        blockSetDamage(selected, blockGet(selected).damage + 1);
+        blockSetDamage(selected, blockGet(selected, 0).damage + 1);
     }
 }

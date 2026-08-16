@@ -21,7 +21,7 @@
 #define TEXTURE_HEIGHT 16
 #define UV_EDGE 0
 
-#define CHUNK_MAX_FACE_COUNT (WORLD_WIDTH * WORLD_WIDTH * CHUNK_HEIGHT * 6 / 2)
+#define CHUNK_MAX_FACE_COUNT (WORLD_WIDTH * WORLD_WIDTH * CHUNK_HEIGHT)
 #define CHUNK_MAX_VERTEX_COUNT (6 * CHUNK_MAX_FACE_COUNT)
 #define MAX_VISIBLE_CHUNKS 8
 #define CAT_VERTEX_COUNT 3
@@ -116,6 +116,8 @@ static bool loadTextureFromMem(C3D_Tex *tex, C3D_TexCube *cube, const void *data
 
 #define OVERLAY_OFFSET 0.001
 void meshAddFace(Mesh *m, int face, int x, int y, int z, int texX, int texY, int overlay) {
+    if (m->nVertex >= CHUNK_MAX_VERTEX_COUNT)
+        return;
     memcpy(m->vertices + m->nVertex, cube_faces + 6 * face, 6 * sizeof(vertex));
     for (int i = 0; i < 6; i++) {
         m->vertices[m->nVertex + i].position[0] += x + OVERLAY_OFFSET * overlay * m->vertices[m->nVertex + i].normal[0];
@@ -128,7 +130,7 @@ void meshAddFace(Mesh *m, int face, int x, int y, int z, int texX, int texY, int
 }
 
 void meshInit(Mesh *m) {
-    m->vertices = linearAlloc((CHUNK_MAX_VERTEX_COUNT) * sizeof(vertex));
+    m->vertices = linearAlloc((CHUNK_MAX_VERTEX_COUNT * MAX_VISIBLE_CHUNKS + CAT_VERTEX_COUNT) * sizeof(vertex));
     m->nVertex  = 0;
 }
 
@@ -303,6 +305,9 @@ void renderScreen(Game *g, C3D_RenderTarget *target, float iod) {
     // Draw the VBO
     C3D_DrawArrays(GPU_TRIANGLES, 0, g->mesh.nVertex);
 
+    g->mesh.vertices[MAX_VISIBLE_CHUNKS * CHUNK_MAX_VERTEX_COUNT]     = (vertex){{0, 16, 0}, {0.0f + UV_EDGE, 0.0f + UV_EDGE}, {0.0f, 0.0f, +1.0f}};
+    g->mesh.vertices[MAX_VISIBLE_CHUNKS * CHUNK_MAX_VERTEX_COUNT + 1] = (vertex){{16, 16, 0}, {UV_X - UV_EDGE, 0.0f + UV_EDGE}, {0.0f, 0.0f, +1.0f}};
+    g->mesh.vertices[MAX_VISIBLE_CHUNKS * CHUNK_MAX_VERTEX_COUNT + 2] = (vertex){{16, 32, 0}, {UV_X - UV_EDGE, UV_Y - UV_EDGE}, {0.0f, 0.0f, +1.0f}};
     C3D_DrawArrays(GPU_TRIANGLES, MAX_VISIBLE_CHUNKS * CHUNK_MAX_VERTEX_COUNT, CAT_VERTEX_COUNT);
 }
 

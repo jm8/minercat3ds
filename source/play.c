@@ -66,13 +66,13 @@ void blockSetDamage(BlockCoords coords, int newDamage) {
     }
 }
 
-Block blockGet(BlockCoords coords) {
+Block blockGet(BlockCoords coords, int def) {
     int x = coords.x;
     int y = coords.y;
     int z = coords.z;
     Block block;
     block.damage = 0;
-    block.id     = 0;
+    block.id     = def;
     if (x < 0 || x >= WORLD_WIDTH)
         return block;
     if (z < 0 || z >= WORLD_WIDTH)
