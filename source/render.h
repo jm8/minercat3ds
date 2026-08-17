@@ -30,6 +30,5 @@ void renderFrame(Game *g);
 void renderExit(Game *g);
 
 extern C3D_Tex cat_tex;
-extern vertex cat_vertices[3];
 extern int uLoc_projection, uLoc_modelView;
 extern int uLoc_lightVec, uLoc_lightHalfVec, uLoc_lightClr, uLoc_material;

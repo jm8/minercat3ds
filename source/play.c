@@ -10,11 +10,11 @@ static Game g;
 void gameInit() {
     renderInit(&g);
 
-    g.playerController.pos.x = 8.7;
-    g.playerController.pos.y = 37.7;
-    g.playerController.pos.z = 8.7;
-    g.playerController.pitch = -1;
-    g.playerController.yaw   = -3.14;
+    g.playerController.pos.x = 1;
+    g.playerController.pos.y = 17.82;
+    g.playerController.pos.z = 2.25;
+    g.playerController.pitch = -0.22;
+    g.playerController.yaw   = 0.16;
 
     g.hasSelected = false;
 
